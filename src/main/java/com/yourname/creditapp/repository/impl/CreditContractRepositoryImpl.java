@@ -19,6 +19,15 @@ public class CreditContractRepositoryImpl implements CreditContractRepository {
     private EntityManager entityManager;
 
     @Override
+    public Optional<CreditContract> findByApplicationId(Long applicationId) {
+        return entityManager.createQuery(
+                        "SELECT c FROM CreditContract c WHERE c.creditApplication.id = :applicationId", CreditContract.class)
+                .setParameter("applicationId", applicationId)
+                .getResultStream()
+                .findFirst(); // Возвращаем Optional, чтобы обработать отсутствие результата
+    }
+
+    @Override
     public CreditContract save(CreditContract contract) {
         if (contract.getId() == null) {
             entityManager.persist(contract); // Сохраняем новый договор

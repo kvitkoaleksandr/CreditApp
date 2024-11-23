@@ -1,9 +1,9 @@
 package com.yourname.creditapp.service;
 
 import com.yourname.creditapp.entitiy.CreditApplication;
+import com.yourname.creditapp.exception.EntityNotFoundException;
 import com.yourname.creditapp.repository.interfaces.CreditApplicationRepository;
 import jakarta.transaction.Transactional;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +33,7 @@ public class CreditApplicationService {
     public CreditApplication makeDecision(Long applicationId) {
         // Получить заявку из базы данных
         CreditApplication application = repository.findById(applicationId)
-                .orElseThrow(() -> new RuntimeException("Заявка с ID " + applicationId + " не найдена"));
+                .orElseThrow(() -> new EntityNotFoundException("Заявка с ID " + applicationId + " не найдена"));
 
         // Случайное решение
         boolean isApproved = Math.random() > 0.5; // 50% вероятность
@@ -63,7 +63,7 @@ public class CreditApplicationService {
     // Метод для поиска заявки по ID
     public CreditApplication getApplicationById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Заявка с ID " + id + " не найдена"));
+                .orElseThrow(() -> new EntityNotFoundException("Заявка с ID " + id + " не найдена"));
     }
 
     // Метод для получения всех заявок

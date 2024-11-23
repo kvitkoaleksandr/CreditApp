@@ -6,6 +6,7 @@ import java.util.Optional;
 
 public interface CreditContractRepository {
 
+    Optional<CreditContract> findByApplicationId(Long applicationId);
     // Сохранение или обновление договора в базу данных.
     //Если договор уже существует (ID не null), обновляет его.
     CreditContract save(CreditContract contract);
