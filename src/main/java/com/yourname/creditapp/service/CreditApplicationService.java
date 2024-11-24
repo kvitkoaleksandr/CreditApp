@@ -6,6 +6,8 @@ import com.yourname.creditapp.exception.InvalidActionException;
 import com.yourname.creditapp.repository.interfaces.CreditApplicationRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -18,10 +20,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CreditApplicationService {
 
+    private static final Logger log = LoggerFactory.getLogger(CreditApplicationService.class); // Создаём логгер
     private final CreditApplicationRepository repository;
 
     @Transactional
     public CreditApplication createApplication(CreditApplication application) {
+        log.info("Создание новой кредитной заявки для клиента: {}", application.getFullName());
+
         // Проверяем, есть ли предыдущая заявка
         Optional<CreditApplication> latestApplication = findLatestApplication(application.getFullName(), application.getPassportData());
 
@@ -31,6 +36,8 @@ public class CreditApplicationService {
 
             if (daysSinceLastApplication < 28) {
                 long daysLeft = 28 - daysSinceLastApplication;
+                log.warn("Клиент {} не может подать заявку. До повторной подачи осталось {} дней.",
+                        application.getFullName(), daysLeft);
                 throw new InvalidActionException(
                         "Вы не можете подать новую заявку. До следующей подачи осталось " + daysLeft + " дней."
                 );
@@ -39,36 +46,45 @@ public class CreditApplicationService {
 
         // Если проверка пройдена, сохраняем новую заявку
         application.setCreatedDate(LocalDate.now()); // Устанавливаем дату создания
+        log.info("Заявка для клиента {} успешно создана.", application.getFullName());
         return repository.save(application);
     }
 
+    // Поиск последней заявки клиента по ФИО и паспортным данным
     public Optional<CreditApplication> findLatestApplication(String fullName, String passportData) {
         return repository.findLatestApplicationByClient(fullName, passportData);
     }
 
+    // Поиск заявок по запросу (ФИО, телефон, паспортные данные)
     public List<CreditApplication> searchApplications(String query) {
-        // Получаем все заявки из репозитория
-        List<CreditApplication> allApplications = repository.findAll();
+        log.info("Поиск заявок по запросу: {}", query);
 
-        // Фильтруем заявки на основе логики "ИЛИ"
-        return allApplications.stream()
+        List<CreditApplication> results = repository.findAll().stream()
                 .filter(application ->
-                        application.getFullName().toLowerCase().contains(query.toLowerCase()) || // Поиск по ФИО
-                                application.getPhone().replace("+", "").contains(query.replace("+", "")) || // Поиск по телефону
-                                application.getPassportData().contains(query) // Поиск по паспортным данным
-                )
+                        application.getFullName().toLowerCase().contains(query.toLowerCase()) ||
+                                application.getPhone().replace("+", "").contains(query.replace("+", "")) ||
+                                application.getPassportData().contains(query))
                 .toList();
+
+        log.info("По запросу '{}' найдено {} заявок.", query, results.size());
+        return results;
     }
 
+    // Получение всех одобренных заявок
     public List<CreditApplication> getApprovedApplications() {
         return repository.findApprovedApplications();
     }
 
     @Transactional
     public CreditApplication makeDecision(Long applicationId) {
+        log.info("Принятие решения по заявке с ID: {}", applicationId);
+
         // Получить заявку из базы данных
         CreditApplication application = repository.findById(applicationId)
-                .orElseThrow(() -> new EntityNotFoundException("Заявка с ID " + applicationId + " не найдена"));
+                .orElseThrow(() -> {
+                    log.error("Заявка с ID {} не найдена. Принятие решения невозможно.", applicationId);
+                    return new EntityNotFoundException("Заявка с ID " + applicationId + " не найдена");
+                });
 
         // Случайное решение
         boolean isApproved = Math.random() > 0.5; // 50% вероятность
@@ -78,7 +94,10 @@ public class CreditApplicationService {
             // Если одобрено, назначить срок и сумму
             application.setApprovedTermMonths((int) (Math.random() * 12) + 1); // От 1 до 12 месяцев
             application.setApprovedAmount(application.getRequestedAmount() * (0.8 + Math.random() * 0.4)); // 80-120% от запрошенной суммы
+            log.info("Заявка с ID {} одобрена. Срок: {} месяцев, сумма: {}.",
+                    applicationId, application.getApprovedTermMonths(), application.getApprovedAmount());
         } else {
+            log.info("Заявка с ID {} не одобрена.", applicationId);
             // Если не одобрено, обнулить данные
             application.setApprovedTermMonths(null);
             application.setApprovedAmount(null);
@@ -90,16 +109,31 @@ public class CreditApplicationService {
         return application; // Вернуть обновленную заявку
     }
 
+    // Получение заявки по ID
     public CreditApplication getApplicationById(Long id) {
+        log.debug("Получение кредитной заявки с ID: {}", id);
         return repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Заявка с ID " + id + " не найдена"));
     }
 
+    // Получение всех заявок
     public List<CreditApplication> getAllApplications() {
         return repository.findAll();
     }
 
+    // Удаление заявки по ID
     public void deleteApplication(Long id) {
-        repository.deleteById(id);
+        log.info("Удаление заявки с ID: {}", id);
+
+        // Проверяем, существует ли заявка
+        CreditApplication application = repository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Заявка с ID {} не найдена. Удаление невозможно.", id);
+                    return new EntityNotFoundException("Заявка с ID " + id + " не найдена");
+                });
+
+        // Удаляем заявку
+        repository.delete(application);
+        log.info("Заявка с ID {} успешно удалена.", id);
     }
 }

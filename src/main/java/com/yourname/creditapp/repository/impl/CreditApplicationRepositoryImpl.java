@@ -5,6 +5,8 @@ import com.yourname.creditapp.repository.interfaces.CreditApplicationRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,12 +16,16 @@ import java.util.Optional;
 @Repository
 @Transactional // Обеспечивает автоматическое управление транзакциями.
 public class CreditApplicationRepositoryImpl implements CreditApplicationRepository {
-    // Аннотация @PersistenceContext автоматически предоставляет EntityManager для работы с базой данных.
+
     @PersistenceContext
     private EntityManager entityManager;
 
+    private static final Logger log = LoggerFactory.getLogger(CreditApplicationRepositoryImpl.class);
+
+    // Поиск последней заявки клиента по ФИО и паспортным данным
     @Override
     public Optional<CreditApplication> findLatestApplicationByClient(String fullName, String passportData) {
+        log.debug("Поиск последней заявки клиента с ФИО: {} и паспортными данными: {}", fullName, passportData);
         return entityManager.createQuery(
                         "SELECT c FROM CreditApplication c WHERE c.fullName = :fullName AND c.passportData = :passportData ORDER BY c.createdDate DESC",
                         CreditApplication.class)
@@ -30,40 +36,62 @@ public class CreditApplicationRepositoryImpl implements CreditApplicationReposit
                 .findFirst();
     }
 
+    // Получение всех заявок
     @Override
     public List<CreditApplication> findAll() {
+        log.debug("Получение всех кредитных заявок из базы данных.");
         return entityManager.createQuery("SELECT c FROM CreditApplication c", CreditApplication.class).getResultList();
     }
 
+    // Получение всех одобренных заявок
     @Override
     public List<CreditApplication> findApprovedApplications() {
+        log.debug("Получение всех одобренных кредитных заявок.");
         return entityManager.createQuery(
                         "SELECT c FROM CreditApplication c WHERE c.decisionStatus = :status", CreditApplication.class)
                 .setParameter("status", "Одобрен")
                 .getResultList();
     }
 
+    // Сохранение новой заявки
     @Override
     public CreditApplication save(CreditApplication application) {
+        log.info("Сохранение новой кредитной заявки для клиента: {}", application.getFullName());
         if (application.getId() == null) {
-            // Если ID нет, это новая заявка — сохраняем через persist.
             entityManager.persist(application);
+            log.debug("Заявка для клиента {} успешно сохранена с новым ID: {}", application.getFullName(), application.getId());
         } else {
-            // Если ID есть, обновляем существующую заявку через merge.
-            entityManager.merge(application);
+            log.error("Попытка обновить существующую заявку с ID: {}. Обновление запрещено.", application.getId());
+            throw new UnsupportedOperationException("Обновление существующей заявки запрещено.");
         }
         return application;
     }
 
+    // Поиск заявки по ID
     @Override
     public Optional<CreditApplication> findById(Long id) {
+        log.debug("Поиск кредитной заявки с ID: {}", id);
         CreditApplication application = entityManager.find(CreditApplication.class, id);
+        if (application == null) {
+            log.warn("Заявка с ID {} не найдена.", id);
+        }
         return Optional.ofNullable(application);
     }
 
+    // Удаление заявки по ID
     @Override
     public void deleteById(Long id) {
-        // Сначала находим заявку, затем удаляем её.
-        findById(id).ifPresent(entityManager::remove);
+        log.info("Удаление кредитной заявки с ID: {}", id);
+        findById(id).ifPresentOrElse(
+                entityManager::remove,
+                () -> log.warn("Заявка с ID {} не найдена. Удаление невозможно.", id)
+        );
+    }
+
+    // Удаление заявки по объекту
+    @Override
+    public void delete(CreditApplication application) {
+        log.info("Удаление кредитной заявки для клиента: {}", application.getFullName());
+        entityManager.remove(entityManager.contains(application) ? application : entityManager.merge(application));
     }
 }

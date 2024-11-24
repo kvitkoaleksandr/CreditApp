@@ -22,40 +22,53 @@ public class CreditApplicationController {
     private final CreditApplicationService service;
     private final CreditContractService contractService;
 
+    // Получение всех подписанных кредитных договоров
     @GetMapping("/contracts/signed")
     public List<CreditContract> getSignedContracts() {
-        log.info("Получен запрос на получение подписанных кредитных договоров.");
         return contractService.getSignedContracts();
     }
 
+    // Подписание кредитного договора по ID заявки
     @PostMapping("/{id}/sign-contract")
     public CreditContract signContract(@PathVariable Long id) {
-        log.info("Получен запрос на подписание договора по заявке с ID: {}", id);
+        log.info("Запрос на подписание договора по заявке с ID: {}", id);
+
+        // Получаем заявку по ID
         CreditApplication application = service.getApplicationById(id);
         if (!"Одобрен".equals(application.getDecisionStatus())) {
-            log.warn("Заявка с ID {} не одобрена, подписание невозможно.", id);
-            throw new InvalidActionException("Заявка не одобрена. Невозможно подписать договор.");
+            log.warn("Попытка подписать договор для не одобренной заявки с ID: {}", id);
+            throw new InvalidActionException("Заявка не одобрена. Подписание невозможно.");
         }
-        return contractService.signContract(application);
+
+        // Подписываем договор
+        CreditContract contract = contractService.signContract(application);
+        log.info("Договор по заявке с ID {} успешно подписан.", id);
+        return contract;
     }
 
+    // Принятие решения по заявке
     @PostMapping("/{id}/decision")
     public CreditApplication makeDecision(@PathVariable Long id) {
         log.info("Принятие решения по заявке с ID: {}", id);
         return service.makeDecision(id);
     }
 
+    // Получение списка всех одобренных заявок
     @GetMapping("/approved")
     public List<CreditApplication> getApprovedApplications() {
         return service.getApprovedApplications();
     }
 
+    // Поиск заявок по параметру (ФИО, телефон или паспортные данные)
     @GetMapping("/search")
     public List<CreditApplication> searchApplications(@RequestParam String query) {
-        log.debug("Поиск заявок с параметром: {}", query);
-        return service.searchApplications(query);
+        log.info("Поиск заявок с запросом: {}", query);
+        List<CreditApplication> results = service.searchApplications(query);
+        log.info("По запросу '{}' найдено {} заявок.", query, results.size());
+        return results;
     }
 
+    // Получение списка всех клиентов
     @GetMapping("/clients")
     public List<String> getAllClients() {
         // Возвращаем список имён всех клиентов
@@ -64,30 +77,30 @@ public class CreditApplicationController {
                 .toList();
     }
 
-    // Метод для создания новой заявки (POST /applications)
+    // Создание новой заявки (POST /applications)
     @PostMapping
     public CreditApplication createApplication(@RequestBody CreditApplication application) {
-        log.info("Создание новой заявки: {}", application);
+        log.info("Создание новой заявки для клиента: {}", application.getFullName());
         return service.createApplication(application);
     }
 
-    // Метод для получения заявки по ID (GET /applications/{id})
+    // Получение заявки по ID (GET /applications/{id})
     @GetMapping("/{id}")
     public CreditApplication getApplication(@PathVariable Long id) {
-        log.debug("Получение заявки с ID: {}", id);
         return service.getApplicationById(id);
     }
 
-    // Метод для получения всех заявок (GET /applications)
+    // Получение всех заявок (GET /applications)
     @GetMapping
     public List<CreditApplication> getAllApplications() {
         return service.getAllApplications();
     }
 
-    // Метод для удаления заявки по ID (DELETE /applications/{id})
+    // Удаление заявки по ID (DELETE /applications/{id})
     @DeleteMapping("/{id}")
     public void deleteApplication(@PathVariable Long id) {
         log.info("Удаление заявки с ID: {}", id);
         service.deleteApplication(id);
+        log.info("Заявка с ID {} успешно удалена.", id);
     }
 }
