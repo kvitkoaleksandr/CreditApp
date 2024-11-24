@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface CreditApplicationRepository {
 
+    Optional<CreditApplication> findLatestApplicationByClient(String fullName, String passportData);
+
     // для получения всех одобренных заявок:
     List<CreditApplication> findApprovedApplications();
 

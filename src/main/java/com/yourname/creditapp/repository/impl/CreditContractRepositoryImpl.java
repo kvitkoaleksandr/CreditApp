@@ -8,6 +8,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository // Указывает, что это компонент для работы с базой данных.
@@ -17,6 +18,14 @@ public class CreditContractRepositoryImpl implements CreditContractRepository {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Override
+    public List<CreditContract> findSignedContracts() {
+        return entityManager.createQuery(
+                        "SELECT c FROM CreditContract c WHERE c.contractStatus = :status", CreditContract.class)
+                .setParameter("status", "Подписан")
+                .getResultList();
+    }
 
     @Override
     public Optional<CreditContract> findByApplicationId(Long applicationId) {

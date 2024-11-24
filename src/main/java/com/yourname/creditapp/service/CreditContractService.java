@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -17,6 +18,10 @@ import java.util.Optional;
 public class CreditContractService {
 
     private final CreditContractRepository contractRepository;
+
+    public List<CreditContract> getSignedContracts() {
+        return contractRepository.findSignedContracts();
+    }
 
     @Transactional
     public CreditContract signContract(CreditApplication application) {

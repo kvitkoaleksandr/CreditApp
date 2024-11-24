@@ -2,9 +2,12 @@ package com.yourname.creditapp.repository.interfaces;
 
 import com.yourname.creditapp.entitiy.CreditContract;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CreditContractRepository {
+
+    List<CreditContract> findSignedContracts();
 
     Optional<CreditContract> findByApplicationId(Long applicationId);
     // Сохранение или обновление договора в базу данных.
