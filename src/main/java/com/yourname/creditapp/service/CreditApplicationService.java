@@ -2,31 +2,66 @@ package com.yourname.creditapp.service;
 
 import com.yourname.creditapp.entitiy.CreditApplication;
 import com.yourname.creditapp.exception.EntityNotFoundException;
+import com.yourname.creditapp.exception.InvalidActionException;
 import com.yourname.creditapp.repository.interfaces.CreditApplicationRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 // Аннотация @Service указывает, что это сервисный класс для обработки логики.
 @Service
-@RequiredArgsConstructor // Lombok автоматически создаёт конструктор для всех final полей
+@RequiredArgsConstructor
 public class CreditApplicationService {
 
     private final CreditApplicationRepository repository;
 
-    public List<CreditApplication> getApprovedApplications() {
-        return repository.findApprovedApplications();
+    @Transactional
+    public CreditApplication createApplication(CreditApplication application) {
+        // Проверяем, есть ли предыдущая заявка
+        Optional<CreditApplication> latestApplication = findLatestApplication(application.getFullName(), application.getPassportData());
+
+        if (latestApplication.isPresent()) {
+            CreditApplication previousApplication = latestApplication.get();
+            long daysSinceLastApplication = ChronoUnit.DAYS.between(previousApplication.getCreatedDate(), LocalDate.now());
+
+            if (daysSinceLastApplication < 28) {
+                long daysLeft = 28 - daysSinceLastApplication;
+                throw new InvalidActionException(
+                        "Вы не можете подать новую заявку. До следующей подачи осталось " + daysLeft + " дней."
+                );
+            }
+        }
+
+        // Если проверка пройдена, сохраняем новую заявку
+        application.setCreatedDate(LocalDate.now()); // Устанавливаем дату создания
+        return repository.save(application);
+    }
+
+    public Optional<CreditApplication> findLatestApplication(String fullName, String passportData) {
+        return repository.findLatestApplicationByClient(fullName, passportData);
     }
 
     public List<CreditApplication> searchApplications(String query) {
-        return repository.findAll().stream()
+        // Получаем все заявки из репозитория
+        List<CreditApplication> allApplications = repository.findAll();
+
+        // Фильтруем заявки на основе логики "ИЛИ"
+        return allApplications.stream()
                 .filter(application ->
-                        application.getFullName().toLowerCase().contains(query.toLowerCase()) ||
-                                application.getPhone().contains(query) ||
-                                application.getPassportData().contains(query))
+                        application.getFullName().toLowerCase().contains(query.toLowerCase()) || // Поиск по ФИО
+                                application.getPhone().replace("+", "").contains(query.replace("+", "")) || // Поиск по телефону
+                                application.getPassportData().contains(query) // Поиск по паспортным данным
+                )
                 .toList();
+    }
+
+    public List<CreditApplication> getApprovedApplications() {
+        return repository.findApprovedApplications();
     }
 
     @Transactional
@@ -55,23 +90,15 @@ public class CreditApplicationService {
         return application; // Вернуть обновленную заявку
     }
 
-    // Метод для создания новой заявки
-    public CreditApplication createApplication(CreditApplication application) {
-        return repository.save(application);
-    }
-
-    // Метод для поиска заявки по ID
     public CreditApplication getApplicationById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Заявка с ID " + id + " не найдена"));
     }
 
-    // Метод для получения всех заявок
     public List<CreditApplication> getAllApplications() {
         return repository.findAll();
     }
 
-    // Метод для удаления заявки по ID
     public void deleteApplication(Long id) {
         repository.deleteById(id);
     }

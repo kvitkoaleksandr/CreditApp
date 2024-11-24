@@ -19,6 +19,23 @@ public class CreditApplicationRepositoryImpl implements CreditApplicationReposit
     private EntityManager entityManager;
 
     @Override
+    public Optional<CreditApplication> findLatestApplicationByClient(String fullName, String passportData) {
+        return entityManager.createQuery(
+                        "SELECT c FROM CreditApplication c WHERE c.fullName = :fullName AND c.passportData = :passportData ORDER BY c.createdDate DESC",
+                        CreditApplication.class)
+                .setParameter("fullName", fullName)
+                .setParameter("passportData", passportData)
+                .setMaxResults(1)
+                .getResultStream()
+                .findFirst();
+    }
+
+    @Override
+    public List<CreditApplication> findAll() {
+        return entityManager.createQuery("SELECT c FROM CreditApplication c", CreditApplication.class).getResultList();
+    }
+
+    @Override
     public List<CreditApplication> findApprovedApplications() {
         return entityManager.createQuery(
                         "SELECT c FROM CreditApplication c WHERE c.decisionStatus = :status", CreditApplication.class)
@@ -42,12 +59,6 @@ public class CreditApplicationRepositoryImpl implements CreditApplicationReposit
     public Optional<CreditApplication> findById(Long id) {
         CreditApplication application = entityManager.find(CreditApplication.class, id);
         return Optional.ofNullable(application);
-    }
-
-    @Override
-    public List<CreditApplication> findAll() {
-        // Выполняем JPQL-запрос для получения всех заявок.
-        return entityManager.createQuery("SELECT c FROM CreditApplication c", CreditApplication.class).getResultList();
     }
 
     @Override

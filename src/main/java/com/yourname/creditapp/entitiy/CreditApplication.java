@@ -3,6 +3,8 @@ package com.yourname.creditapp.entitiy;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "credit_applications")
 @Data
@@ -26,4 +28,6 @@ public class CreditApplication {
     private String decisionStatus; // Статус решения (Одобрен / Не одобрен)
     private Integer approvedTermMonths; // Срок в месяцах
     private Double approvedAmount; // Одобренная сумма
+
+    private LocalDate createdDate; // Дата создания заявки
 }
