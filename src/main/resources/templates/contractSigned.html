@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Договор подписан</title>
+</head>
+<body>
+<h1>Договор успешно подписан</h1>
+<p th:text="'Клиент: ' + ${signedContract.creditApplication.fullName}"></p>
+<p th:text="'Дата подписания: ' + ${signedContract.signingDate}"></p>
+<a th:href="@{/}">На главную</a>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Поиск клиента</title>
+</head>
+<body>
+<h1>Поиск клиента</h1>
+<form action="/applications/search" method="get">
+    <input type="text" name="query" th:value="${query}" placeholder="Введите телефон, ФИО или паспорт">
+    <button type="submit">Искать</button>
+</form>
+<h2>Результаты поиска:</h2>
+<ul>
+    <li th:each="result : ${searchResults}" th:text="${result.fullName}"></li>
+</ul>
+<a href="/">На главную</a>
+</body>
+</html>

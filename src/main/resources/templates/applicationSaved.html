@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Заявка сохранена</title>
+</head>
+<body>
+<h1>Заявка успешно сохранена</h1>
+<p th:text="'Клиент: ' + ${createdApplication.fullName}"></p>
+<p th:text="'Сумма кредита: ' + ${createdApplication.requestedAmount}"></p>
+<a th:href="@{/}">На главную</a>
+<a th:href="@{/applications/{id}/decision(id=${createdApplication.id})}">Принять решение по заявке</a>
+</body>
+</html>
