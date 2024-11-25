@@ -1,9 +1,10 @@
 package com.yourname.creditapp.controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import com.yourname.creditapp.entitiy.CreditApplication;
 import com.yourname.creditapp.entitiy.CreditContract;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import com.yourname.creditapp.dto.CreditApplicationForm;
 import com.yourname.creditapp.service.CreditApplicationService;
 import com.yourname.creditapp.service.CreditContractService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,20 @@ public class CreditApplicationController {
     private static final Logger log = LoggerFactory.getLogger(CreditApplicationController.class);
     private final CreditApplicationService service;
     private final CreditContractService contractService;
+    @GetMapping("/approved")
+    public String getApprovedApplications(Model model) {
+        model.addAttribute("approvedApplications", service.getApprovedApplications());
+        return "approvedApplications";
+    }
+
+    @GetMapping("/clients/view")
+    public String viewClients(Model model) {
+        List<String> clients = service.getAllApplications().stream()
+                .map(CreditApplication::getFullName)
+                .toList();
+        model.addAttribute("clients", clients);
+        return "clients";
+    }
 
     // Главная страница
     @GetMapping("/")
@@ -32,17 +47,17 @@ public class CreditApplicationController {
     @GetMapping("/create")
     public String getCreateApplicationPage(Model model) {
         log.debug("Загрузка страницы для создания заявки на кредит");
-        model.addAttribute("newCreditApplication", new CreditApplication());
+        model.addAttribute("newCreditApplicationForm", new CreditApplicationForm());
         return "createApplication"; // шаблон createApplication.html
     }
 
     // Сохранение новой заявки
-    // Сохранение новой заявки
     @PostMapping("/create")
-    public String createApplication(@ModelAttribute("newCreditApplication") CreditApplication application, Model model) {
-        log.info("Получен запрос на создание заявки для клиента: {}", application.getFullName());
+    public String createApplication(@ModelAttribute("newCreditApplicationForm") CreditApplicationForm form, Model model) {
+        log.info("Получен запрос на создание заявки для клиента: {} {} {}", form.getLastName(), form.getFirstName(), form.getMiddleName());
         try {
-            CreditApplication savedApplication = service.createApplication(application);
+            // Создаём заявку из формы
+            CreditApplication savedApplication = service.createApplicationFromForm(form);
             model.addAttribute("createdApplication", savedApplication);
             return "applicationSaved"; // шаблон applicationSaved.html
         } catch (Exception ex) {
@@ -94,12 +109,13 @@ public class CreditApplicationController {
         return "search";
     }
 
+
     // Вывод списка одобренных заявок
     @GetMapping("/approved/view")
     public String getApprovedApplicationsPage(Model model) {
         List<CreditApplication> approvedApplications = service.getApprovedApplications();
         model.addAttribute("approvedApps", approvedApplications);
-        return "approvedApplications";
+        return "approvedApplications"; // Указываем имя шаблона
     }
 
     // Вывод подписанных договоров
@@ -110,7 +126,7 @@ public class CreditApplicationController {
         return "signedContracts";
     }
 
-    // Вывод всех заявок (если необходимо)
+    // Вывод всех заявок
     @GetMapping("/view")
     public String getAllApplicationsPage(Model model) {
         List<CreditApplication> applications = service.getAllApplications();

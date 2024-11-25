@@ -1,30 +1,34 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Одобренные заявки</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список заявок со статусом "Одобрено"</title>
 </head>
 <body>
-<h1>Список одобренных заявок</h1>
-<table border="1">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>ФИО</th>
-        <th>Сумма</th>
-        <th>Срок (мес)</th>
-        <th>Одобренная сумма</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="app : ${approvedApps}">
-        <td th:text="${app.id}">ID</td>
-        <td th:text="${app.fullName}">ФИО</td>
-        <td th:text="${app.requestedAmount}">Сумма</td>
-        <td th:text="${app.approvedTermMonths}">Срок</td>
-        <td th:text="${app.approvedAmount}">Одобренная сумма</td>
-    </tr>
-    </tbody>
-</table>
-<a th:href="@{/}">На главную</a>
+<!-- Заголовок -->
+<div style="background-color: #d4f3d1; padding: 10px; text-align: center;">
+    <h1>Список заявок со статусом "Одобрено"</h1>
+</div>
+
+<!-- Основное содержимое -->
+<div style="display: flex; justify-content: space-between; padding: 20px;">
+    <!-- Левая часть: список заявок -->
+    <div style="flex: 3; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9;">
+        <h3>Одобренные заявки:</h3>
+        <ul>
+            <!-- Динамически подставляемый список -->
+            <li th:each="app : ${approvedApps}" th:text="${app.fullName}">Имя клиента</li>
+        </ul>
+    </div>
+
+    <!-- Правая часть: кнопка возврата -->
+    <div style="flex: 1; text-align: center;">
+        <a th:href="@{/applications/}"
+           style="display: inline-block; padding: 10px 20px; background-color: #62bf82; color: black; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Вернуться в главное меню
+        </a>
+    </div>
+</div>
 </body>
 </html>
