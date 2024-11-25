@@ -5,30 +5,31 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
-@Entity // Аннотация @Entity отмечает класс как сущность базы данных.
-@Table(name = "credit_applications") // Указывает имя таблицы в базе данных.
-@Data // Аннотация Lombok для генерации геттеров, сеттеров и других методов.
+@Entity
+@Table(name = "credit_applications")
+@Data
 public class CreditApplication {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Автоматическая генерация ID.
-    private Long id; // Уникальный идентификатор заявки.
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private String fullName; // Полное имя клиента (ФИО).
-    private String passportData; // Паспортные данные клиента.
-    private String maritalStatus; // Семейное положение.
-    private String address; // Адрес прописки.
-    private String phone; // Контактный телефон.
+    private String fullName;
+    private String passportData;
+    private String maritalStatus;
+    private String address;
+    private String phone;
 
-    private String employmentDuration; // Период работы (стаж).
-    private String jobTitle; // Должность.
+    private String employmentDuration; // Можно оставить пустым, если не обязательно на этапе создания.
+    private String jobTitle; // Должность, оставить пустым при создании.
     private String companyName; // Название организации.
 
-    private Double requestedAmount; // Сумма желаемого кредита.
+    private Double requestedAmount;
 
-    private String decisionStatus; // Статус решения (Одобрен / Не одобрен).
-    private Integer approvedTermMonths; // Одобренный срок в месяцах.
-    private Double approvedAmount; // Одобренная сумма кредита.
+    private String decisionStatus = "В ожидании"; // По умолчанию, статус заявки до принятия решения.
+    private Integer approvedTermMonths; // Определяется только при одобрении заявки.
+    private Double approvedAmount; // Определяется только при одобрении заявки.
 
-    private LocalDate createdDate; // Дата создания заявки.
+    @Column(updatable = false)
+    private LocalDate createdDate = LocalDate.now(); // Автоматически назначается текущая дата при создании.
 }

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Решение по заявке</title>
+</head>
+<body>
+<h1>Решение по заявке</h1>
+<p th:text="'Заявка: ' + ${decisionApplication.fullName}"></p>
+<p th:text="'Статус: ' + ${decisionApplication.decisionStatus}"></p>
+<div th:if="${decisionApplication.decisionStatus == 'Одобрен'}">
+    <p th:text="'Одобренная сумма: ' + ${decisionApplication.approvedAmount}"></p>
+    <p th:text="'Срок кредита (мес.): ' + ${decisionApplication.approvedTermMonths}"></p>
+    <a th:href="@{/applications/{id}/sign(id=${decisionApplication.id})}">Подписать договор</a>
+</div>
+<a th:href="@{/}">На главную</a>
+</body>
+</html>

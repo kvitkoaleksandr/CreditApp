@@ -56,13 +56,11 @@ public class CreditApplicationRepositoryImpl implements CreditApplicationReposit
     // Сохранение новой заявки
     @Override
     public CreditApplication save(CreditApplication application) {
-        log.info("Сохранение новой кредитной заявки для клиента: {}", application.getFullName());
         if (application.getId() == null) {
             entityManager.persist(application);
-            log.debug("Заявка для клиента {} успешно сохранена с новым ID: {}", application.getFullName(), application.getId());
         } else {
-            log.error("Попытка обновить существующую заявку с ID: {}. Обновление запрещено.", application.getId());
-            throw new UnsupportedOperationException("Обновление существующей заявки запрещено.");
+            // Обновляем только если заявка существует
+            entityManager.merge(application);
         }
         return application;
     }

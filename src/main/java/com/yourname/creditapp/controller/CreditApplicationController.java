@@ -1,8 +1,9 @@
 package com.yourname.creditapp.controller;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import com.yourname.creditapp.entitiy.CreditApplication;
 import com.yourname.creditapp.entitiy.CreditContract;
-import com.yourname.creditapp.exception.InvalidActionException;
 import com.yourname.creditapp.service.CreditApplicationService;
 import com.yourname.creditapp.service.CreditContractService;
 import lombok.RequiredArgsConstructor;
@@ -12,95 +13,108 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// Аннотация @RestController указывает, что это REST-контроллер, возвращающий данные в формате JSON.
-@RestController
-@RequestMapping("/applications") // Базовый URL для всех запросов к заявкам
+@Controller
+@RequestMapping("/applications")
 @RequiredArgsConstructor
 public class CreditApplicationController {
 
-    private static final Logger log = LoggerFactory.getLogger(CreditApplicationController.class); // Создаём логгер
+    private static final Logger log = LoggerFactory.getLogger(CreditApplicationController.class);
     private final CreditApplicationService service;
     private final CreditContractService contractService;
 
-    // Получение всех подписанных кредитных договоров
-    @GetMapping("/contracts/signed")
-    public List<CreditContract> getSignedContracts() {
-        return contractService.getSignedContracts();
+    // Главная страница
+    @GetMapping("/")
+    public String getIndexPage() {
+        return "index";
     }
 
-    // Подписание кредитного договора по ID заявки
-    @PostMapping("/{id}/sign-contract")
-    public CreditContract signContract(@PathVariable Long id) {
-        log.info("Запрос на подписание договора по заявке с ID: {}", id);
+    // Страница для создания заявки
+    @GetMapping("/create")
+    public String getCreateApplicationPage(Model model) {
+        log.debug("Загрузка страницы для создания заявки на кредит");
+        model.addAttribute("newCreditApplication", new CreditApplication());
+        return "createApplication"; // шаблон createApplication.html
+    }
 
-        // Получаем заявку по ID
-        CreditApplication application = service.getApplicationById(id);
-        if (!"Одобрен".equals(application.getDecisionStatus())) {
-            log.warn("Попытка подписать договор для не одобренной заявки с ID: {}", id);
-            throw new InvalidActionException("Заявка не одобрена. Подписание невозможно.");
+    // Сохранение новой заявки
+    // Сохранение новой заявки
+    @PostMapping("/create")
+    public String createApplication(@ModelAttribute("newCreditApplication") CreditApplication application, Model model) {
+        log.info("Получен запрос на создание заявки для клиента: {}", application.getFullName());
+        try {
+            CreditApplication savedApplication = service.createApplication(application);
+            model.addAttribute("createdApplication", savedApplication);
+            return "applicationSaved"; // шаблон applicationSaved.html
+        } catch (Exception ex) {
+            log.error("Ошибка при сохранении заявки: {}", ex.getMessage(), ex);
+            model.addAttribute("errorMessage", "Не удалось сохранить заявку. Попробуйте позже.");
+            return "createApplication"; // вернуть пользователя на форму с ошибкой
         }
-
-        // Подписываем договор
-        CreditContract contract = contractService.signContract(application);
-        log.info("Договор по заявке с ID {} успешно подписан.", id);
-        return contract;
     }
 
     // Принятие решения по заявке
-    @PostMapping("/{id}/decision")
-    public CreditApplication makeDecision(@PathVariable Long id) {
+    @GetMapping("/{id}/decision")
+    public String getDecisionPage(@PathVariable Long id, Model model) {
         log.info("Принятие решения по заявке с ID: {}", id);
-        return service.makeDecision(id);
+        CreditApplication application = service.makeDecision(id);
+        model.addAttribute("decisionApplication", application);
+        return "decisionPage";
     }
 
-    // Получение списка всех одобренных заявок
-    @GetMapping("/approved")
-    public List<CreditApplication> getApprovedApplications() {
-        return service.getApprovedApplications();
+    // Подписание кредитного договора
+    @GetMapping("/{id}/sign")
+    public String signContract(@PathVariable Long id, Model model) {
+        log.info("Подписание договора по заявке с ID: {}", id);
+        CreditApplication application = service.getApplicationById(id);
+        CreditContract contract = contractService.signContract(application);
+        model.addAttribute("signedContract", contract);
+        return "contractSigned";
     }
 
-    // Поиск заявок по параметру (ФИО, телефон или паспортные данные)
-    @GetMapping("/search")
-    public List<CreditApplication> searchApplications(@RequestParam String query) {
-        log.info("Поиск заявок с запросом: {}", query);
-        List<CreditApplication> results = service.searchApplications(query);
-        log.info("По запросу '{}' найдено {} заявок.", query, results.size());
-        return results;
-    }
-
-    // Получение списка всех клиентов
+    // Вывод списка всех клиентов
     @GetMapping("/clients")
-    public List<String> getAllClients() {
-        // Возвращаем список имён всех клиентов
-        return service.getAllApplications().stream()
-                .map(CreditApplication::getFullName) // Извлекаем только имена
+    public String getAllClientsPage(Model model) {
+        List<String> clients = service.getAllApplications().stream()
+                .map(CreditApplication::getFullName)
                 .toList();
+        model.addAttribute("clients", clients);
+        return "clients";
     }
 
-    // Создание новой заявки (POST /applications)
-    @PostMapping
-    public CreditApplication createApplication(@RequestBody CreditApplication application) {
-        log.info("Создание новой заявки для клиента: {}", application.getFullName());
-        return service.createApplication(application);
+    // Поиск клиента по параметрам
+    @GetMapping("/search")
+    public String searchApplications(@RequestParam(required = false) String query, Model model) {
+        if (query == null || query.isBlank()) {
+            model.addAttribute("searchResults", List.of());
+        } else {
+            log.info("Поиск клиента с параметром: {}", query);
+            List<CreditApplication> results = service.searchApplications(query);
+            model.addAttribute("searchResults", results);
+        }
+        return "search";
     }
 
-    // Получение заявки по ID (GET /applications/{id})
-    @GetMapping("/{id}")
-    public CreditApplication getApplication(@PathVariable Long id) {
-        return service.getApplicationById(id);
+    // Вывод списка одобренных заявок
+    @GetMapping("/approved/view")
+    public String getApprovedApplicationsPage(Model model) {
+        List<CreditApplication> approvedApplications = service.getApprovedApplications();
+        model.addAttribute("approvedApps", approvedApplications);
+        return "approvedApplications";
     }
 
-    // Получение всех заявок (GET /applications)
-    @GetMapping
-    public List<CreditApplication> getAllApplications() {
-        return service.getAllApplications();
+    // Вывод подписанных договоров
+    @GetMapping("/contracts/signed/view")
+    public String getSignedContractsPage(Model model) {
+        List<CreditContract> signedContracts = contractService.getSignedContracts();
+        model.addAttribute("signedContracts", signedContracts);
+        return "signedContracts";
     }
 
-    // Удаление заявки по ID (DELETE /applications/{id})
-    @DeleteMapping("/{id}")
-    public void deleteApplication(@PathVariable Long id) {
-        log.info("Удаление заявки с ID: {}", id);
-        service.deleteApplication(id);
-        log.info("Заявка с ID {} успешно удалена.", id);
+    // Вывод всех заявок (если необходимо)
+    @GetMapping("/view")
+    public String getAllApplicationsPage(Model model) {
+        List<CreditApplication> applications = service.getAllApplications();
+        model.addAttribute("creditApplications", applications);
+        return "creditApplications";
     }
 }

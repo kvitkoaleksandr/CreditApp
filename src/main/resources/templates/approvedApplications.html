@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Одобренные заявки</title>
+</head>
+<body>
+<h1>Список одобренных заявок</h1>
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>ФИО</th>
+        <th>Сумма</th>
+        <th>Срок (мес)</th>
+        <th>Одобренная сумма</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="app : ${approvedApps}">
+        <td th:text="${app.id}">ID</td>
+        <td th:text="${app.fullName}">ФИО</td>
+        <td th:text="${app.requestedAmount}">Сумма</td>
+        <td th:text="${app.approvedTermMonths}">Срок</td>
+        <td th:text="${app.approvedAmount}">Одобренная сумма</td>
+    </tr>
+    </tbody>
+</table>
+<a th:href="@{/}">На главную</a>
+</body>
+</html>

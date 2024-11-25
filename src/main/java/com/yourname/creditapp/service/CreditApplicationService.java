@@ -79,34 +79,36 @@ public class CreditApplicationService {
     public CreditApplication makeDecision(Long applicationId) {
         log.info("Принятие решения по заявке с ID: {}", applicationId);
 
-        // Получить заявку из базы данных
+        // Получаем заявку из базы данных
         CreditApplication application = repository.findById(applicationId)
                 .orElseThrow(() -> {
                     log.error("Заявка с ID {} не найдена. Принятие решения невозможно.", applicationId);
                     return new EntityNotFoundException("Заявка с ID " + applicationId + " не найдена");
                 });
 
-        // Случайное решение
+        // Проверяем, было ли уже принято решение
+        if (application.getDecisionStatus() != null) {
+            log.warn("Решение по заявке с ID {} уже принято. Повторное изменение запрещено.", applicationId);
+            throw new InvalidActionException("Решение по заявке уже принято.");
+        }
+
+        // Генерация случайного решения
         boolean isApproved = Math.random() > 0.5; // 50% вероятность
         application.setDecisionStatus(isApproved ? "Одобрен" : "Не одобрен");
 
         if (isApproved) {
-            // Если одобрено, назначить срок и сумму
-            application.setApprovedTermMonths((int) (Math.random() * 12) + 1); // От 1 до 12 месяцев
-            application.setApprovedAmount(application.getRequestedAmount() * (0.8 + Math.random() * 0.4)); // 80-120% от запрошенной суммы
+            application.setApprovedTermMonths((int) (Math.random() * 12) + 1); // Срок от 1 до 12 месяцев
+            application.setApprovedAmount(application.getRequestedAmount() * (0.8 + Math.random() * 0.4)); // Сумма 80–120%
             log.info("Заявка с ID {} одобрена. Срок: {} месяцев, сумма: {}.",
                     applicationId, application.getApprovedTermMonths(), application.getApprovedAmount());
         } else {
             log.info("Заявка с ID {} не одобрена.", applicationId);
-            // Если не одобрено, обнулить данные
-            application.setApprovedTermMonths(null);
-            application.setApprovedAmount(null);
         }
 
-        // Сохранить изменения
+        // Сохраняем изменения
         repository.save(application);
 
-        return application; // Вернуть обновленную заявку
+        return application;
     }
 
     // Получение заявки по ID

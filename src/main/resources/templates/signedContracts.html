@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Подписанные договоры</title>
+</head>
+<body>
+<h1>Список подписанных договоров</h1>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>ФИО</th>
+        <th>Сумма</th>
+        <th>Дата подписания</th>
+        <th>Статус</th>
+    </tr>
+    <tr th:each="contract : ${signedContracts}">
+        <td th:text="${contract.id}"></td>
+        <td th:text="${contract.creditApplication.fullName}"></td>
+        <td th:text="${contract.creditApplication.approvedAmount}"></td>
+        <td th:text="${contract.signingDate}"></td>
+        <td th:text="${contract.contractStatus}"></td>
+    </tr>
+</table>
+<a href="/">На главную</a>
+</body>
+</html>

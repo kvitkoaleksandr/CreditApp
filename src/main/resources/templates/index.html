@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Кредитное приложение</title>
+</head>
+<body>
+<h1>Кредитное приложение</h1>
+<ul>
+    <li><a th:href="@{/applications/create}">Оформить заявление на кредит</a></li>
+    <li><a th:href="@{/applications/clients}">Вывод списка всех клиентов</a></li>
+    <li><a th:href="@{/applications/search}">Поиск клиента по телефону, ФИО и паспортным данным</a></li>
+    <li><a th:href="@{/applications/approved/view}">Вывод списка заявок со статусом одобрения</a></li>
+    <li><a th:href="@{/applications/contracts/signed/view}">Вывод списка всех подписанных кредитных договоров</a></li>
+</ul>
+</body>
+</html>
