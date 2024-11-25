@@ -1,41 +1,68 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Оформить заявление на кредит</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание заявки на кредит</title>
 </head>
 <body>
-<h1>Оформить заявление на кредит</h1>
+<h1>Создание заявки на кредит</h1>
 <form action="/applications/create" method="post">
-    <label for="fullName">ФИО:</label>
-    <input type="text" id="fullName" name="fullName" required><br><br>
+    <fieldset>
+        <legend>Персональная информация</legend>
+        <label for="lastName">Фамилия:</label>
+        <input type="text" id="lastName" name="lastName" required><br>
 
-    <label for="passportData">Паспортные данные:</label>
-    <input type="text" id="passportData" name="passportData" required><br><br>
+        <label for="firstName">Имя:</label>
+        <input type="text" id="firstName" name="firstName" required><br>
 
-    <label for="maritalStatus">Семейное положение:</label>
-    <select id="maritalStatus" name="maritalStatus" required>
-        <option value="single">Холост/Не замужем</option>
-        <option value="married">Женат/Замужем</option>
-        <option value="divorced">Разведён/Разведена</option>
-        <option value="widowed">Вдова/Вдовец</option>
-    </select><br><br>
+        <label for="middleName">Отчество:</label>
+        <input type="text" id="middleName" name="middleName"><br>
 
-    <label for="registrationAddress">Адрес прописки:</label>
-    <input type="text" id="registrationAddress" name="registrationAddress" required><br><br>
+        <label for="passportData">Паспортные данные:</label>
+        <input type="text" id="passportData" name="passportData" required><br>
+    </fieldset>
 
-    <label for="phoneNumber">Контактный телефон:</label>
-    <input type="tel" id="phoneNumber" name="phoneNumber" required><br><br>
+    <fieldset>
+        <legend>Адрес</legend>
+        <label for="city">Город:</label>
+        <input type="text" id="city" name="city" required><br>
 
-    <label for="employmentInfo">Сведения о занятости:</label><br>
-    <textarea id="employmentInfo" name="employmentInfo" rows="4" cols="50" placeholder="Период работы, должность, название организации" required></textarea><br><br>
+        <label for="street">Улица:</label>
+        <input type="text" id="street" name="street" required><br>
 
-    <label for="creditAmount">Сумма желаемого кредита:</label>
-    <input type="number" id="creditAmount" name="creditAmount" required><br><br>
+        <label for="houseNumber">Дом:</label>
+        <input type="text" id="houseNumber" name="houseNumber" required><br>
+    </fieldset>
 
-    <button type="submit">Сохранить</button>
+    <fieldset>
+        <legend>Контактная информация</legend>
+        <label for="phone">Телефон:</label>
+        <input type="text" id="phone" name="phone" required><br>
+
+        <label for="maritalStatus">Семейное положение:</label>
+        <input type="text" id="maritalStatus" name="maritalStatus" required><br>
+    </fieldset>
+
+    <fieldset>
+        <legend>Сведения о занятости</legend>
+        <label for="employmentDuration">Срок занятости:</label>
+        <input type="text" id="employmentDuration" name="employmentDuration"><br>
+
+        <label for="jobTitle">Должность:</label>
+        <input type="text" id="jobTitle" name="jobTitle"><br>
+
+        <label for="companyName">Название компании:</label>
+        <input type="text" id="companyName" name="companyName"><br>
+    </fieldset>
+
+    <fieldset>
+        <legend>Детали кредита</legend>
+        <label for="requestedAmount">Сумма кредита:</label>
+        <input type="number" id="requestedAmount" name="requestedAmount" required><br>
+    </fieldset>
+
+    <button type="submit">Создать заявку</button>
 </form>
-<br>
-<a href="/">На главную</a>
 </body>
 </html>

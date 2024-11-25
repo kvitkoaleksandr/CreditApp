@@ -1,27 +1,50 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Подписанные договоры</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список подписанных договоров</title>
 </head>
 <body>
-<h1>Список подписанных договоров</h1>
-<table border="1">
-    <tr>
-        <th>ID</th>
-        <th>ФИО</th>
-        <th>Сумма</th>
-        <th>Дата подписания</th>
-        <th>Статус</th>
-    </tr>
-    <tr th:each="contract : ${signedContracts}">
-        <td th:text="${contract.id}"></td>
-        <td th:text="${contract.creditApplication.fullName}"></td>
-        <td th:text="${contract.creditApplication.approvedAmount}"></td>
-        <td th:text="${contract.signingDate}"></td>
-        <td th:text="${contract.contractStatus}"></td>
-    </tr>
-</table>
-<a href="/">На главную</a>
+<!-- Заголовок -->
+<div style="background-color: #d4f3d1; padding: 10px; text-align: center;">
+    <h1>Список подписанных договоров</h1>
+</div>
+
+<!-- Основное содержимое -->
+<div style="display: flex; justify-content: space-between; padding: 20px;">
+    <!-- Левая часть: таблица с договорами -->
+    <div style="flex: 3; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9;">
+        <h3>Подписанные договоры:</h3>
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <thead>
+            <tr style="background-color: #eaeaea;">
+                <th>ID</th>
+                <th>ФИО</th>
+                <th>Сумма</th>
+                <th>Дата подписания</th>
+                <th>Статус</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="contract : ${signedContracts}">
+                <td th:text="${contract.id}"></td>
+                <td th:text="${contract.creditApplication.fullName}"></td>
+                <td th:text="${contract.creditApplication.approvedAmount}"></td>
+                <td th:text="${contract.signingDate}"></td>
+                <td th:text="${contract.contractStatus}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Правая часть: кнопка возврата -->
+    <div style="flex: 1; text-align: center;">
+        <a th:href="@{/applications/}"
+           style="display: inline-block; padding: 10px 20px; background-color: #62bf82; color: black; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Вернуться в главное меню
+        </a>
+    </div>
+</div>
 </body>
 </html>

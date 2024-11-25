@@ -2,13 +2,33 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Список клиентов</title>
 </head>
 <body>
-<h1>Список всех клиентов</h1>
-<ul>
-    <li th:each="client : ${clients}" th:text="${client}"></li>
-</ul>
-<a href="/">На главную</a>
+<!-- Заголовок -->
+<div style="background-color: #d4f3d1; padding: 10px; text-align: center;">
+    <h1>Список клиентов</h1>
+</div>
+
+<!-- Основное содержимое -->
+<div style="display: flex; justify-content: space-between; padding: 20px;">
+    <!-- Левая часть: список клиентов -->
+    <div style="flex: 3; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9;">
+        <h3>Клиенты:</h3>
+        <ul>
+            <!-- Динамически подставляемый список -->
+            <li th:each="client : ${clients}" th:text="${client}"></li>
+            <!-- Здесь ваш список клиентов -->
+        </ul>
+    </div>
+
+    <!-- Правая часть: кнопка возврата -->
+    <div style="flex: 1; text-align: center;">
+        <a href="/" style="display: inline-block; padding: 10px 20px; background-color: #62bf82; color: black; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Вернуться в главное меню
+        </a>
+    </div>
+</div>
 </body>
 </html>

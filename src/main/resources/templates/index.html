@@ -1,16 +1,90 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Кредитное приложение</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        .header {
+            background-color: #d3f9d8; /* Бледно-зеленый цвет */
+            padding: 20px;
+            text-align: center;
+            font-size: 32px; /* Размер шрифта */
+            font-weight: normal; /* Убрали жирность */
+            color: black;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+        }
+        .column {
+            width: 45%;
+        }
+        .block {
+            margin: 10px 0;
+            background-color: white;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .block.left {
+            border: 1px solid #d6d6d6; /* Бледно-серый цвет */
+            font-size: 16px; /* Размер шрифта в левой колонке */
+        }
+        .block.right {
+            border: 2px solid #b3d9ff; /* Бледно-голубой цвет */
+            font-size: 20px; /* Уменьшенный шрифт для правой колонки */
+            padding: 20px; /* Уменьшено внутреннее расстояние */
+        }
+        .block a {
+            text-decoration: none;
+            color: black;
+            font-size: inherit; /* Наследуем размер шрифта блока */
+        }
+        .block a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-<h1>Кредитное приложение</h1>
-<ul>
-    <li><a th:href="@{/applications/create}">Оформить заявление на кредит</a></li>
-    <li><a th:href="@{/applications/clients}">Вывод списка всех клиентов</a></li>
-    <li><a th:href="@{/applications/search}">Поиск клиента по телефону, ФИО и паспортным данным</a></li>
-    <li><a th:href="@{/applications/approved/view}">Вывод списка заявок со статусом одобрения</a></li>
-    <li><a th:href="@{/applications/contracts/signed/view}">Вывод списка всех подписанных кредитных договоров</a></li>
-</ul>
+<div class="header">
+    Кредитное приложение
+</div>
+<div class="container">
+    <!-- Левая колонка -->
+    <div class="column">
+        <div class="block left">
+            <a href="/applications/clients">Вывод списка всех клиентов</a>
+        </div>
+        <div class="block left">
+            <a href="/applications/approved/view">Вывод списка заявок со статусом одобрения</a>
+        </div>
+        <div class="block left">
+            <a href="/applications/search">Поиск клиента</a>
+        </div>
+        <div class="block left">
+            <a href="/applications/contracts/signed/view">Вывод списка всех подписанных кредитных договоров</a>
+        </div>
+    </div>
+    <!-- Правая колонка -->
+    <div class="column">
+        <div class="block right">
+            <a href="/applications/create">Оформить заявление на кредит</a>
+        </div>
+        <div class="block right">
+            <a href="/applications/signature/list">Список заявлений для подписания</a>
+        </div>
+        <div class="block right">
+            <a href="/applications/decision/list">Список заявлений для принятия решения</a>
+        </div>
+    </div>
+</div>
 </body>
 </html>
