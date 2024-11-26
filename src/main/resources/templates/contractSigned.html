@@ -1,12 +1,64 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Договор подписан</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .details {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        .links {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .link {
+            text-decoration: none;
+            background-color: #62bf82;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .link:hover {
+            background-color: #56a973;
+        }
+    </style>
 </head>
 <body>
-<h1>Договор успешно подписан</h1>
-<p th:text="'Клиент: ' + ${signedContract.creditApplication.fullName}"></p>
-<p th:text="'Дата подписания: ' + ${signedContract.signingDate}"></p>
-<a th:href="@{/}">На главную</a>
+<div class="container">
+    <div class="header">
+        Договор успешно подписан
+    </div>
+    <div class="details">
+        <p th:text="'Клиент: ' + ${signedContract.creditApplication.fullName}">Клиент: Иванов Иван Иванович</p>
+        <p th:text="'Дата подписания: ' + ${signedContract.signingDate}">Дата подписания: 2024-11-26</p>
+    </div>
+    <div class="links">
+        <a th:href="@{/applications/}" class="link">Вернуться в главное меню</a>
+    </div>
+</div>
 </body>
 </html>

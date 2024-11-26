@@ -29,20 +29,15 @@ public class CreditApplicationController {
 
     @GetMapping("/check-decision")
     public String checkDecision(@RequestParam("id") Long applicationId, Model model) {
-        try {
-            // Получаем заявку по ID
-            CreditApplication application = service.getApplicationById(applicationId);
+        // Принятие решения по заявке
+        service.processApplicationDecision(applicationId);
 
-            // Добавляем заявку в модель
-            model.addAttribute("decisionApplication", application);
+        // Загрузка актуальных данных из базы
+        CreditApplication application = service.getApplicationById(applicationId);
 
-            // Переходим на страницу отображения решения
-            return "decisionPage";
-        } catch (EntityNotFoundException e) {
-            // Если заявка не найдена, возвращаем сообщение об ошибке
-            model.addAttribute("errorMessage", "Заявка не найдена. Попробуйте снова.");
-            return "index"; // Возвращаем пользователя на главную страницу
-        }
+        // Передача данных в шаблон
+        model.addAttribute("decisionApplication", application);
+        return "decisionPage";
     }
 
     @PostMapping("/submit")
@@ -51,19 +46,19 @@ public class CreditApplicationController {
             BindingResult bindingResult,
             Model model) {
         if (bindingResult.hasErrors()) {
-            return "createApplication"; // Возвращаем форму, если есть ошибки
+            return "createApplication"; // Возвращаем форму при ошибках
         }
 
         try {
+            // Создание и сохранение заявки
             CreditApplication savedApplication = service.createApplicationFromForm(form);
-            model.addAttribute("createdApplication", savedApplication); // Передаём объект в модель
-            return "applicationSaved"; // Переход к шаблону "applicationSaved"
-        } catch (InvalidActionException ex) {
-            model.addAttribute("errorMessage", ex.getMessage());
-            return "errorPage"; // Переход на страницу ошибки
+            model.addAttribute("createdApplication", savedApplication);
+
+            // Перенаправляем на страницу результата
+            return "applicationSaved";
         } catch (Exception ex) {
-            model.addAttribute("errorMessage", "Произошла ошибка при сохранении заявки. Попробуйте позже.");
-            return "errorPage"; // Общая страница ошибки
+            model.addAttribute("errorMessage", "Произошла ошибка при сохранении заявки: " + ex.getMessage());
+            return "errorPage";
         }
     }
 

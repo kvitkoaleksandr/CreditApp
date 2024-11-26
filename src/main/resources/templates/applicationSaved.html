@@ -27,23 +27,26 @@
             font-size: 1.1em;
             margin-bottom: 10px;
         }
-        .error-message {
-            color: red;
-            text-align: center;
+        .links {
+            display: flex;
+            justify-content: space-around;
             margin-top: 20px;
         }
-        .back-button {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-        }
-        .back-button a {
+        .link {
             text-decoration: none;
             background-color: #62bf82;
             color: white;
             padding: 10px 20px;
             border-radius: 5px;
             font-weight: bold;
+        }
+        .link:hover {
+            background-color: #56a973;
+        }
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -55,9 +58,9 @@
 
     <!-- Проверяем, существует ли объект createdApplication -->
     <div th:if="${createdApplication != null}">
-        <p class="details">Фамилия: <span th:text="${createdApplication.lastName}">Иванов</span></p>
-        <p class="details">Имя: <span th:text="${createdApplication.firstName}">Иван</span></p>
-        <p class="details">Отчество: <span th:text="${createdApplication.middleName}">Иванович</span></p>
+        <p class="details">Фамилия: <span th:text="${createdApplication.fullName.split(' ')[0]}">Иванов</span></p>
+        <p class="details">Имя: <span th:text="${createdApplication.fullName.split(' ')[1]}">Иван</span></p>
+        <p class="details">Отчество: <span th:text="${createdApplication.fullName.split(' ')[2]}">Иванович</span></p>
         <p class="details">Сумма кредита: <span th:text="${createdApplication.requestedAmount}">500000</span></p>
     </div>
 
@@ -66,8 +69,12 @@
         <p>Произошла ошибка при сохранении заявки. Попробуйте позже.</p>
     </div>
 
-    <div class="back-button">
-        <a th:href="@{/applications/}">Вернуться в главное меню</a>
+    <!-- Ссылки для продолжения работы -->
+    <div class="links">
+        <!-- Ссылка для проверки решения по заявке -->
+        <a th:href="@{/applications/check-decision(id=${createdApplication.id})}" class="link">Проверить решение</a>
+        <!-- Ссылка для возврата в главное меню -->
+        <a th:href="@{/applications/}" class="link">Вернуться в главное меню</a>
     </div>
 </div>
 </body>

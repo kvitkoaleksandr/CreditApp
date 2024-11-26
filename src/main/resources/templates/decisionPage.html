@@ -4,35 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Решение по заявке</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #d4f3d1;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .details {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .actions a {
+            text-decoration: none;
+            background-color: #62bf82;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 0 10px;
+        }
+        .actions a:hover {
+            background-color: #56a973;
+        }
+    </style>
 </head>
 <body>
-<!-- Заголовок -->
-<div style="background-color: #d4f3d1; padding: 10px; text-align: center;">
-    <h1>Решение по заявке</h1>
-</div>
-
-<!-- Основное содержимое -->
-<div style="padding: 20px; text-align: center;">
-    <p th:text="'Заявка для: ' + ${decisionApplication.fullName}"></p>
-    <p th:text="'Статус: ' + ${decisionApplication.decisionStatus}"></p>
-
-    <!-- Если заявка одобрена -->
-    <div th:if="${decisionApplication.decisionStatus == 'Одобрен'}">
-        <p th:text="'Одобренная сумма: ' + ${decisionApplication.approvedAmount} + ' RUB'"></p>
-        <p th:text="'Срок кредита (мес.): ' + ${decisionApplication.approvedTermMonths}"></p>
-
-        <!-- Ссылка на подписание договора -->
-        <a th:href="@{/applications/{id}/sign(id=${decisionApplication.id})}"
-           style="display: inline-block; padding: 10px 20px; background-color: #62bf82; color: black; text-decoration: none; border-radius: 5px; font-weight: bold;">
-            Подписать договор
-        </a>
+<div class="container">
+    <div class="header">
+        Решение по заявке
     </div>
 
-    <!-- Ссылка для возврата в главное меню -->
-    <a th:href="@{/applications/}"
-       style="display: inline-block; padding: 10px 20px; background-color: #62bf82; color: black; text-decoration: none; border-radius: 5px; font-weight: bold;">
-        Вернуться в главное меню
-    </a>
+    <!-- Основное содержимое -->
+    <div class="details">
+        <p th:text="'Заявка для: ' + ${decisionApplication.fullName}">Заявка для: Иванов Иван Иванович</p>
+        <p th:text="'Статус: ' + ${decisionApplication.decisionStatus}">Статус: В ожидании</p>
+
+        <!-- Если заявка одобрена -->
+        <div th:if="${decisionApplication.decisionStatus == 'Одобрен'}">
+            <p th:text="'Одобренная сумма: ' + ${decisionApplication.approvedAmount} + ' RUB'">Одобренная сумма: 500000 RUB</p>
+            <p th:text="'Срок кредита (мес.): ' + ${decisionApplication.approvedTermMonths}">Срок кредита (мес.): 12</p>
+        </div>
+
+        <!-- Если заявка не одобрена -->
+        <div th:if="${decisionApplication.decisionStatus == 'Не одобрен'}">
+            <p>К сожалению, заявка не была одобрена.</p>
+        </div>
+    </div>
+
+    <!-- Действия -->
+    <div class="actions">
+        <!-- Ссылка на подписание договора -->
+        <a th:if="${decisionApplication.decisionStatus == 'Одобрен'}"
+           th:href="@{/applications/{id}/sign(id=${decisionApplication.id})}">
+            Подписать договор
+        </a>
+
+        <!-- Ссылка для возврата в главное меню -->
+        <a th:href="@{/applications/}">Вернуться в главное меню</a>
+    </div>
 </div>
 </body>
 </html>
