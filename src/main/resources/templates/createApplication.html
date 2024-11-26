@@ -1,68 +1,167 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Создание заявки на кредит</title>
+    <title>Оформление заявления на кредит</title>
+    <style>
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .error-border {
+            border: 2px solid red;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #d4f3d1;
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        .form-container {
+            flex: 3;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #62bf82;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #56a973;
+        }
+    </style>
 </head>
 <body>
-<h1>Создание заявки на кредит</h1>
-<form action="/applications/create" method="post">
-    <fieldset>
-        <legend>Персональная информация</legend>
-        <label for="lastName">Фамилия:</label>
-        <input type="text" id="lastName" name="lastName" required><br>
+<div class="header">
+    <h1>Оформление заявления на кредит</h1>
+</div>
+<div class="container">
+    <div class="form-container">
+        <h3>Заполните форму для подачи заявления:</h3>
+        <form th:action="@{/applications/submit}" method="post" th:object="${newCreditApplicationForm}">
+            <!-- Поле Фамилия -->
+            <label for="lastName">Фамилия:</label>
+            <span class="error" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></span>
+            <input type="text" id="lastName" name="lastName"
+                   th:classappend="${#fields.hasErrors('lastName')} ? 'error-border' : ''"
+                   th:value="*{lastName}">
 
-        <label for="firstName">Имя:</label>
-        <input type="text" id="firstName" name="firstName" required><br>
+            <!-- Поле Имя -->
+            <label for="firstName">Имя:</label>
+            <span class="error" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></span>
+            <input type="text" id="firstName" name="firstName"
+                   th:classappend="${#fields.hasErrors('firstName')} ? 'error-border' : ''"
+                   th:value="*{firstName}">
 
-        <label for="middleName">Отчество:</label>
-        <input type="text" id="middleName" name="middleName"><br>
+            <!-- Поле Отчество -->
+            <label for="middleName">Отчество:</label>
+            <span class="error" th:if="${#fields.hasErrors('middleName')}" th:errors="*{middleName}"></span>
+            <input type="text" id="middleName" name="middleName"
+                   th:classappend="${#fields.hasErrors('middleName')} ? 'error-border' : ''"
+                   th:value="*{middleName}">
 
-        <label for="passportData">Паспортные данные:</label>
-        <input type="text" id="passportData" name="passportData" required><br>
-    </fieldset>
+            <!-- Поле Паспортные данные -->
+            <label for="passportData">Паспортные данные:</label>
+            <span class="error" th:if="${#fields.hasErrors('passportData')}" th:errors="*{passportData}"></span>
+            <input type="text" id="passportData" name="passportData"
+                   th:classappend="${#fields.hasErrors('passportData')} ? 'error-border' : ''"
+                   th:value="*{passportData}">
 
-    <fieldset>
-        <legend>Адрес</legend>
-        <label for="city">Город:</label>
-        <input type="text" id="city" name="city" required><br>
+            <!-- Поле Город -->
+            <label for="city">Город:</label>
+            <span class="error" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></span>
+            <input type="text" id="city" name="city"
+                   th:classappend="${#fields.hasErrors('city')} ? 'error-border' : ''"
+                   th:value="*{city}">
 
-        <label for="street">Улица:</label>
-        <input type="text" id="street" name="street" required><br>
+            <!-- Поле Улица -->
+            <label for="street">Улица:</label>
+            <span class="error" th:if="${#fields.hasErrors('street')}" th:errors="*{street}"></span>
+            <input type="text" id="street" name="street"
+                   th:classappend="${#fields.hasErrors('street')} ? 'error-border' : ''"
+                   th:value="*{street}">
 
-        <label for="houseNumber">Дом:</label>
-        <input type="text" id="houseNumber" name="houseNumber" required><br>
-    </fieldset>
+            <!-- Поле Номер дома -->
+            <label for="houseNumber">Дом:</label>
+            <span class="error" th:if="${#fields.hasErrors('houseNumber')}" th:errors="*{houseNumber}"></span>
+            <input type="text" id="houseNumber" name="houseNumber"
+                   th:classappend="${#fields.hasErrors('houseNumber')} ? 'error-border' : ''"
+                   th:value="*{houseNumber}">
 
-    <fieldset>
-        <legend>Контактная информация</legend>
-        <label for="phone">Телефон:</label>
-        <input type="text" id="phone" name="phone" required><br>
+            <!-- Поле Телефон -->
+            <label for="phone">Телефон:</label>
+            <span class="error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></span>
+            <input type="text" id="phone" name="phone"
+                   th:classappend="${#fields.hasErrors('phone')} ? 'error-border' : ''"
+                   th:value="*{phone}">
 
-        <label for="maritalStatus">Семейное положение:</label>
-        <input type="text" id="maritalStatus" name="maritalStatus" required><br>
-    </fieldset>
+            <!-- Поле Семейное положение -->
+            <label for="maritalStatus">Семейное положение:</label>
+            <span class="error" th:if="${#fields.hasErrors('maritalStatus')}" th:errors="*{maritalStatus}"></span>
+            <input type="text" id="maritalStatus" name="maritalStatus"
+                   th:classappend="${#fields.hasErrors('maritalStatus')} ? 'error-border' : ''"
+                   th:value="*{maritalStatus}">
 
-    <fieldset>
-        <legend>Сведения о занятости</legend>
-        <label for="employmentDuration">Срок занятости:</label>
-        <input type="text" id="employmentDuration" name="employmentDuration"><br>
+            <!-- Поле Срок занятости -->
+            <label for="employmentDuration">Срок занятости:</label>
+            <span class="error" th:if="${#fields.hasErrors('employmentDuration')}" th:errors="*{employmentDuration}"></span>
+            <input type="text" id="employmentDuration" name="employmentDuration"
+                   th:classappend="${#fields.hasErrors('employmentDuration')} ? 'error-border' : ''"
+                   th:value="*{employmentDuration}">
 
-        <label for="jobTitle">Должность:</label>
-        <input type="text" id="jobTitle" name="jobTitle"><br>
+            <!-- Поле Должность -->
+            <label for="jobTitle">Должность:</label>
+            <span class="error" th:if="${#fields.hasErrors('jobTitle')}" th:errors="*{jobTitle}"></span>
+            <input type="text" id="jobTitle" name="jobTitle"
+                   th:classappend="${#fields.hasErrors('jobTitle')} ? 'error-border' : ''"
+                   th:value="*{jobTitle}">
 
-        <label for="companyName">Название компании:</label>
-        <input type="text" id="companyName" name="companyName"><br>
-    </fieldset>
+            <!-- Поле Название компании -->
+            <label for="companyName">Название компании:</label>
+            <span class="error" th:if="${#fields.hasErrors('companyName')}" th:errors="*{companyName}"></span>
+            <input type="text" id="companyName" name="companyName"
+                   th:classappend="${#fields.hasErrors('companyName')} ? 'error-border' : ''"
+                   th:value="*{companyName}">
 
-    <fieldset>
-        <legend>Детали кредита</legend>
-        <label for="requestedAmount">Сумма кредита:</label>
-        <input type="number" id="requestedAmount" name="requestedAmount" required><br>
-    </fieldset>
+            <!-- Поле Сумма кредита -->
+            <label for="requestedAmount">Сумма кредита:</label>
+            <span class="error" th:if="${#fields.hasErrors('requestedAmount')}" th:errors="*{requestedAmount}"></span>
+            <input type="number" id="requestedAmount" name="requestedAmount"
+                   th:classappend="${#fields.hasErrors('requestedAmount')} ? 'error-border' : ''"
+                   th:value="*{requestedAmount}">
 
-    <button type="submit">Создать заявку</button>
-</form>
+            <button type="submit">Отправить заявку</button>
+        </form>
+    </div>
+</div>
 </body>
 </html>

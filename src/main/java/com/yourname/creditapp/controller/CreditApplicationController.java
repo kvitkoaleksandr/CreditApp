@@ -2,6 +2,9 @@ package com.yourname.creditapp.controller;
 
 import com.yourname.creditapp.entitiy.CreditApplication;
 import com.yourname.creditapp.entitiy.CreditContract;
+import com.yourname.creditapp.exception.EntityNotFoundException;
+import com.yourname.creditapp.exception.InvalidActionException;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import com.yourname.creditapp.dto.CreditApplicationForm;
@@ -10,6 +13,7 @@ import com.yourname.creditapp.service.CreditContractService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +26,42 @@ public class CreditApplicationController {
     private static final Logger log = LoggerFactory.getLogger(CreditApplicationController.class);
     private final CreditApplicationService service;
     private final CreditContractService contractService;
+
+    @GetMapping("/check-decision")
+    public String checkDecision(@RequestParam("id") Long applicationId, Model model) {
+        // Принятие решения по заявке
+        service.processApplicationDecision(applicationId);
+
+        // Загрузка актуальных данных из базы
+        CreditApplication application = service.getApplicationById(applicationId);
+
+        // Передача данных в шаблон
+        model.addAttribute("decisionApplication", application);
+        return "decisionPage";
+    }
+
+    @PostMapping("/submit")
+    public String submitApplication(
+            @Valid @ModelAttribute("newCreditApplicationForm") CreditApplicationForm form,
+            BindingResult bindingResult,
+            Model model) {
+        if (bindingResult.hasErrors()) {
+            return "createApplication"; // Возвращаем форму при ошибках
+        }
+
+        try {
+            // Создание и сохранение заявки
+            CreditApplication savedApplication = service.createApplicationFromForm(form);
+            model.addAttribute("createdApplication", savedApplication);
+
+            // Перенаправляем на страницу результата
+            return "applicationSaved";
+        } catch (Exception ex) {
+            model.addAttribute("errorMessage", "Произошла ошибка при сохранении заявки: " + ex.getMessage());
+            return "errorPage";
+        }
+    }
+
     @GetMapping("/approved")
     public String getApprovedApplications(Model model) {
         model.addAttribute("approvedApplications", service.getApprovedApplications());

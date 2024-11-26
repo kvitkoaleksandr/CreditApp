@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ошибка подачи заявки</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 20px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .link {
+            margin-top: 20px;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #62bf82;
+            color: black;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .link:hover {
+            background-color: #4fa06d;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="message">
+        <h1 th:text="${errorMessage}">Вы не можете подать новую заявку. До следующей подачи осталось 28 дней.</h1>
+    </div>
+    <a class="link" th:href="@{/applications/}">Вернуться в главное меню</a>
+</div>
+</body>
+</html>

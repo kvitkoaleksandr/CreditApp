@@ -23,6 +23,33 @@ public class CreditApplicationService {
     private static final Logger log = LoggerFactory.getLogger(CreditApplicationService.class);
     private final CreditApplicationRepository repository;
 
+    @Transactional
+    public void processApplicationDecision(Long applicationId) {
+        // Загрузка заявки из базы
+        CreditApplication application = repository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Заявление не найдено!"));
+
+        // Генерация случайного решения
+        String decision = Math.random() > 0.5 ? "Одобрен" : "Не одобрен";
+        application.setDecisionStatus(decision);
+
+        // Если заявка одобрена, устанавливаем дополнительные параметры
+        if ("Одобрен".equals(decision)) {
+            application.setApprovedAmount(application.getRequestedAmount());
+            application.setApprovedTermMonths((int) (6 + Math.random() * 18)); // Случайный срок от 6 до 24 месяцев
+            log.info("Заявка с ID {} одобрена. Сумма: {}, Срок: {} месяцев",
+                    applicationId, application.getApprovedAmount(), application.getApprovedTermMonths());
+        } else {
+            application.setApprovedAmount(0.0);
+            application.setApprovedTermMonths(0);
+            log.info("Заявка с ID {} не одобрена.", applicationId);
+        }
+
+        // Сохранение изменений в базу
+        repository.save(application);
+        log.debug("Изменения для заявки с ID {} успешно сохранены в базе.", applicationId);
+    }
+
     // Преобразование CreditApplicationForm в CreditApplication
     public CreditApplication convertFormToEntity(CreditApplicationForm form) {
         CreditApplication application = new CreditApplication();
