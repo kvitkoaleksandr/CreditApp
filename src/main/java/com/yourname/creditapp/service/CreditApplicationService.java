@@ -27,7 +27,7 @@ public class CreditApplicationService {
     public void processApplicationDecision(Long applicationId) {
         // Загрузка заявки из базы
         CreditApplication application = repository.findById(applicationId)
-                .orElseThrow(() -> new RuntimeException("Заявление не найдено!"));
+                .orElseThrow(() -> new EntityNotFoundException("Заявление не найдено!"));
 
         // Генерация случайного решения
         String decision = Math.random() > 0.5 ? "Одобрен" : "Не одобрен";
