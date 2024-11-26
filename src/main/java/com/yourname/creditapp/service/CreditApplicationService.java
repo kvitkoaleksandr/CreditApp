@@ -5,6 +5,8 @@ import com.yourname.creditapp.entitiy.CreditApplication;
 import com.yourname.creditapp.exception.EntityNotFoundException;
 import com.yourname.creditapp.exception.InvalidActionException;
 import com.yourname.creditapp.repository.interfaces.CreditApplicationRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -22,32 +24,38 @@ public class CreditApplicationService {
 
     private static final Logger log = LoggerFactory.getLogger(CreditApplicationService.class);
     private final CreditApplicationRepository repository;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Transactional
     public void processApplicationDecision(Long applicationId) {
-        // Загрузка заявки из базы
         CreditApplication application = repository.findById(applicationId)
-                .orElseThrow(() -> new EntityNotFoundException("Заявление не найдено!"));
+                .orElseThrow(() -> new EntityNotFoundException("Заявка не найдена"));
 
-        // Генерация случайного решения
+        // Проверка на существующий статус
+        if (application.getDecisionStatus() != null && !application.getDecisionStatus().equals("В ожидании")) {
+            log.info("Решение по заявке с ID {} уже принято: {}", applicationId, application.getDecisionStatus());
+            return; // Решение уже существует
+        }
+
+        // Генерация решения
         String decision = Math.random() > 0.5 ? "Одобрен" : "Не одобрен";
         application.setDecisionStatus(decision);
 
-        // Если заявка одобрена, устанавливаем дополнительные параметры
+        // Обновление параметров в зависимости от решения
         if ("Одобрен".equals(decision)) {
             application.setApprovedAmount(application.getRequestedAmount());
-            application.setApprovedTermMonths((int) (6 + Math.random() * 18)); // Случайный срок от 6 до 24 месяцев
-            log.info("Заявка с ID {} одобрена. Сумма: {}, Срок: {} месяцев",
-                    applicationId, application.getApprovedAmount(), application.getApprovedTermMonths());
+            application.setApprovedTermMonths((int) (1 + Math.random() * 12)); // Срок от 1 до 12 месяцев
         } else {
             application.setApprovedAmount(0.0);
             application.setApprovedTermMonths(0);
-            log.info("Заявка с ID {} не одобрена.", applicationId);
         }
 
-        // Сохранение изменений в базу
+        // Сохранение изменений
+        log.info("Заявка до обновления: {}", application);
         repository.save(application);
-        log.debug("Изменения для заявки с ID {} успешно сохранены в базе.", applicationId);
+        log.info("Заявка после обновления: {}", application);
+        log.info("Решение по заявке с ID {} принято: {}", applicationId, decision);
     }
 
     // Преобразование CreditApplicationForm в CreditApplication
@@ -134,9 +142,10 @@ public class CreditApplicationService {
                     return new EntityNotFoundException("Заявка с ID " + applicationId + " не найдена");
                 });
 
+        // Проверяем, есть ли уже принятое решение
         if (application.getDecisionStatus() != null) {
-            log.warn("Решение по заявке с ID {} уже принято. Повторное изменение запрещено.", applicationId);
-            throw new InvalidActionException("Решение по заявке уже принято.");
+            log.warn("Решение по заявке с ID {} уже принято: '{}'.", applicationId, application.getDecisionStatus());
+            return application; // Возвращаем без изменений
         }
 
         boolean isApproved = Math.random() > 0.5;
@@ -148,12 +157,18 @@ public class CreditApplicationService {
             log.info("Заявка с ID {} одобрена. Срок: {} месяцев, сумма: {}.",
                     applicationId, application.getApprovedTermMonths(), application.getApprovedAmount());
         } else {
+            application.setApprovedAmount(0.0);
+            application.setApprovedTermMonths(0);
             log.info("Заявка с ID {} не одобрена.", applicationId);
         }
 
         repository.save(application);
         return application;
     }
+
+//        repository.save(application);
+//        return application;
+//    }
 
     public CreditApplication getApplicationById(Long id) {
         log.debug("Получение кредитной заявки с ID: {}", id);

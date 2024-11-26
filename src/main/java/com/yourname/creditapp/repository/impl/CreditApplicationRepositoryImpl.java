@@ -59,8 +59,7 @@ public class CreditApplicationRepositoryImpl implements CreditApplicationReposit
         if (application.getId() == null) {
             entityManager.persist(application);
         } else {
-            // Обновляем только если заявка существует
-            entityManager.merge(application);
+            application = entityManager.merge(application);
         }
         return application;
     }

@@ -58,17 +58,17 @@
     <!-- Основное содержимое -->
     <div class="details">
         <p th:text="'Заявка для: ' + ${decisionApplication.fullName}">Заявка для: Иванов Иван Иванович</p>
-        <p th:text="'Статус: ' + ${decisionApplication.decisionStatus}">Статус: В ожидании</p>
+        <p th:text="'Статус: ' + ${decisionApplication.decisionStatus}"></p>
 
         <!-- Если заявка одобрена -->
         <div th:if="${decisionApplication.decisionStatus == 'Одобрен'}">
-            <p th:text="'Одобренная сумма: ' + ${decisionApplication.approvedAmount} + ' RUB'">Одобренная сумма: 500000 RUB</p>
-            <p th:text="'Срок кредита (мес.): ' + ${decisionApplication.approvedTermMonths}">Срок кредита (мес.): 12</p>
+            <p th:text="'Одобренная сумма: ' + ${decisionApplication.approvedAmount} + ' RUB'"></p>
+            <p th:text="'Срок кредита (мес.): ' + ${decisionApplication.approvedTermMonths}"></p>
         </div>
 
         <!-- Если заявка не одобрена -->
         <div th:if="${decisionApplication.decisionStatus == 'Не одобрен'}">
-            <p>К сожалению, заявка не была одобрена.</p>
+            <p>К сожалению, заявка не одобрена.</p>
         </div>
     </div>
 
