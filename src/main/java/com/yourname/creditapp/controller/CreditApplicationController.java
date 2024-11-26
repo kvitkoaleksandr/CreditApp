@@ -29,16 +29,16 @@ public class CreditApplicationController {
 
     @GetMapping("/check-decision")
     public String checkDecision(@RequestParam("id") Long applicationId, Model model) {
-        // Принятие решения по заявке
         service.processApplicationDecision(applicationId);
 
-        // Загрузка актуальных данных из базы
+        // Загрузка актуальных данных
         CreditApplication application = service.getApplicationById(applicationId);
+        log.info("Решение по заявке: {}", application.getDecisionStatus());
 
-        // Передача данных в шаблон
         model.addAttribute("decisionApplication", application);
         return "decisionPage";
     }
+
 
     @PostMapping("/submit")
     public String submitApplication(

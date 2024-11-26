@@ -33,21 +33,23 @@ public class CreditContractService {
     public CreditContract signContract(CreditApplication application) {
         log.info("Подписание договора по заявке с ID: {}", application.getId());
 
-        // Проверяем, существует ли договор для данной заявки
+        if (!"Одобрен".equalsIgnoreCase(application.getDecisionStatus())) {
+            log.error("Невозможно подписать договор. Заявка с ID {} не одобрена.", application.getId());
+            throw new InvalidActionException("Договор можно подписать только для одобренной заявки.");
+        }
+
         Optional<CreditContract> existingContract = contractRepository.findByApplicationId(application.getId());
         if (existingContract.isPresent()) {
             log.warn("Договор для заявки с ID {} уже существует. Повторное подписание невозможно.", application.getId());
             throw new InvalidActionException("Договор для заявки с ID " + application.getId() + " уже существует.");
         }
 
-        // Создаём новый договор
         CreditContract contract = new CreditContract();
-        contract.setCreditApplication(application); // Связываем с заявкой
-        contract.setSigningDate(LocalDate.now()); // Устанавливаем дату подписания
-        contract.setContractStatus("Подписан"); // Устанавливаем статус договора
+        contract.setCreditApplication(application);
+        contract.setSigningDate(LocalDate.now());
+        contract.setContractStatus("Подписан");
 
         log.info("Создан новый договор для заявки с ID: {}", application.getId());
-        // Сохраняем договор через репозиторий
         return contractRepository.save(contract);
     }
 
