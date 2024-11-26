@@ -2,6 +2,9 @@ package com.yourname.creditapp.controller;
 
 import com.yourname.creditapp.entitiy.CreditApplication;
 import com.yourname.creditapp.entitiy.CreditContract;
+import com.yourname.creditapp.exception.EntityNotFoundException;
+import com.yourname.creditapp.exception.InvalidActionException;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import com.yourname.creditapp.dto.CreditApplicationForm;
@@ -10,6 +13,7 @@ import com.yourname.creditapp.service.CreditContractService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +26,47 @@ public class CreditApplicationController {
     private static final Logger log = LoggerFactory.getLogger(CreditApplicationController.class);
     private final CreditApplicationService service;
     private final CreditContractService contractService;
+
+    @GetMapping("/check-decision")
+    public String checkDecision(@RequestParam("id") Long applicationId, Model model) {
+        try {
+            // Получаем заявку по ID
+            CreditApplication application = service.getApplicationById(applicationId);
+
+            // Добавляем заявку в модель
+            model.addAttribute("decisionApplication", application);
+
+            // Переходим на страницу отображения решения
+            return "decisionPage";
+        } catch (EntityNotFoundException e) {
+            // Если заявка не найдена, возвращаем сообщение об ошибке
+            model.addAttribute("errorMessage", "Заявка не найдена. Попробуйте снова.");
+            return "index"; // Возвращаем пользователя на главную страницу
+        }
+    }
+
+    @PostMapping("/submit")
+    public String submitApplication(
+            @Valid @ModelAttribute("newCreditApplicationForm") CreditApplicationForm form,
+            BindingResult bindingResult,
+            Model model) {
+        if (bindingResult.hasErrors()) {
+            return "createApplication"; // Возвращаем форму, если есть ошибки
+        }
+
+        try {
+            CreditApplication savedApplication = service.createApplicationFromForm(form);
+            model.addAttribute("createdApplication", savedApplication); // Передаём объект в модель
+            return "applicationSaved"; // Переход к шаблону "applicationSaved"
+        } catch (InvalidActionException ex) {
+            model.addAttribute("errorMessage", ex.getMessage());
+            return "errorPage"; // Переход на страницу ошибки
+        } catch (Exception ex) {
+            model.addAttribute("errorMessage", "Произошла ошибка при сохранении заявки. Попробуйте позже.");
+            return "errorPage"; // Общая страница ошибки
+        }
+    }
+
     @GetMapping("/approved")
     public String getApprovedApplications(Model model) {
         model.addAttribute("approvedApplications", service.getApprovedApplications());

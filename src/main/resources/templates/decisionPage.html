@@ -1,17 +1,38 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Решение по заявке</title>
 </head>
 <body>
-<h1>Решение по заявке</h1>
-<p th:text="'Заявка: ' + ${decisionApplication.fullName}"></p>
-<p th:text="'Статус: ' + ${decisionApplication.decisionStatus}"></p>
-<div th:if="${decisionApplication.decisionStatus == 'Одобрен'}">
-    <p th:text="'Одобренная сумма: ' + ${decisionApplication.approvedAmount}"></p>
-    <p th:text="'Срок кредита (мес.): ' + ${decisionApplication.approvedTermMonths}"></p>
-    <a th:href="@{/applications/{id}/sign(id=${decisionApplication.id})}">Подписать договор</a>
+<!-- Заголовок -->
+<div style="background-color: #d4f3d1; padding: 10px; text-align: center;">
+    <h1>Решение по заявке</h1>
 </div>
-<a th:href="@{/}">На главную</a>
+
+<!-- Основное содержимое -->
+<div style="padding: 20px; text-align: center;">
+    <p th:text="'Заявка для: ' + ${decisionApplication.fullName}"></p>
+    <p th:text="'Статус: ' + ${decisionApplication.decisionStatus}"></p>
+
+    <!-- Если заявка одобрена -->
+    <div th:if="${decisionApplication.decisionStatus == 'Одобрен'}">
+        <p th:text="'Одобренная сумма: ' + ${decisionApplication.approvedAmount} + ' RUB'"></p>
+        <p th:text="'Срок кредита (мес.): ' + ${decisionApplication.approvedTermMonths}"></p>
+
+        <!-- Ссылка на подписание договора -->
+        <a th:href="@{/applications/{id}/sign(id=${decisionApplication.id})}"
+           style="display: inline-block; padding: 10px 20px; background-color: #62bf82; color: black; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Подписать договор
+        </a>
+    </div>
+
+    <!-- Ссылка для возврата в главное меню -->
+    <a th:href="@{/applications/}"
+       style="display: inline-block; padding: 10px 20px; background-color: #62bf82; color: black; text-decoration: none; border-radius: 5px; font-weight: bold;">
+        Вернуться в главное меню
+    </a>
+</div>
 </body>
 </html>

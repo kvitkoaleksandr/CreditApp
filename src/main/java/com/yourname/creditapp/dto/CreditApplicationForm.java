@@ -1,25 +1,49 @@
 package com.yourname.creditapp.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Data
 public class CreditApplicationForm {
-    private String firstName;     // Имя
-    private String lastName;      // Фамилия
-    private String middleName;    // Отчество
+    @NotBlank(message = "Фамилия обязательна для заполнения")
+    private String lastName;
 
-    private String city;          // Город
-    private String street;        // Улица
-    private String houseNumber;   // Номер дома
+    @NotBlank(message = "Имя обязательно для заполнения")
+    private String firstName;
 
-    private String phone;         // Телефон
-    private String maritalStatus; // Семейное положение
+    @NotBlank(message = "Отчество обязательно для заполнения")
+    private String middleName;
 
-    private String employmentDuration; // Срок занятости
-    private String jobTitle;           // Должность
-    private String companyName;        // Название компании
+    @NotBlank(message = "Паспортные данные обязательны для заполнения")
+    private String passportData;
 
-    private String passportData;       // Паспортные данные
+    @NotBlank(message = "Город обязателен для заполнения")
+    private String city;
 
-    private Double requestedAmount;    // Желаемая сумма кредита
+    @NotBlank(message = "Улица обязательна для заполнения")
+    private String street;
+
+    @NotBlank(message = "Номер дома обязателен для заполнения")
+    private String houseNumber;
+
+    @NotBlank(message = "Телефон обязателен для заполнения")
+    private String phone;
+
+    @NotBlank(message = "Семейное положение обязательно для заполнения")
+    private String maritalStatus;
+
+    @NotBlank(message = "Срок занятости обязателен для заполнения")
+    private String employmentDuration;
+
+    @NotBlank(message = "Должность обязательна для заполнения")
+    private String jobTitle;
+
+    @NotBlank(message = "Название компании обязательно для заполнения")
+    private String companyName;
+
+    @NotNull(message = "Сумма кредита обязательна")
+    @Positive(message = "Сумма кредита должна быть положительной")
+    private Double requestedAmount;
 }
