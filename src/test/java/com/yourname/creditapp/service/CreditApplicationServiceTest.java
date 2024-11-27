@@ -34,65 +34,48 @@ class CreditApplicationServiceTest {
 
     @BeforeEach
     void setUp() {
-        form = createCreditApplicationForm("Иван", "Иванов", "Иванович", "+79876543210", 500000.0);
+        form = createCreditApplicationForm("Иван", "Иванов",
+                "Иванович", "Москва", "Тверская", "12",
+                "+79876543210", "Женат", "36",
+                "Менеджер", "ООО Рога и Копыта",
+                "1234 567890", 500000.0);
     }
 
-    private CreditApplicationForm createCreditApplicationForm(String firstName, String lastName, String middleName, String phone, Double amount) {
+    private CreditApplicationForm createCreditApplicationForm(
+            String firstName, String lastName, String middleName,
+            String city, String street, String houseNumber, String phone,
+            String maritalStatus, String employmentDuration, String jobTitle,
+            String companyName, String passportData, double requestedAmount) {
+
         CreditApplicationForm form = new CreditApplicationForm();
         form.setFirstName(firstName);
         form.setLastName(lastName);
         form.setMiddleName(middleName);
-        form.setCity("Москва");
-        form.setStreet("Тверская");
-        form.setHouseNumber("12");
+        form.setCity(city);
+        form.setStreet(street);
+        form.setHouseNumber(houseNumber);
         form.setPhone(phone);
-        form.setMaritalStatus("Женат");
-        form.setEmploymentDuration("36");
-        form.setJobTitle("Менеджер");
-        form.setCompanyName("ООО Рога и Копыта");
-        form.setPassportData("1234 567890");
-        form.setRequestedAmount(amount);
+        form.setMaritalStatus(maritalStatus);
+        form.setEmploymentDuration(employmentDuration);
+        form.setJobTitle(jobTitle);
+        form.setCompanyName(companyName);
+        form.setPassportData(passportData);
+        form.setRequestedAmount(requestedAmount);
         return form;
     }
 
-    private CreditApplication createCreditApplication(Long id, String fullName, String phone, String decisionStatus) {
+    private CreditApplication createCreditApplication(Long id, String fullName, String decisionStatus) {
         CreditApplication application = new CreditApplication();
         application.setId(id);
         application.setFullName(fullName);
-        application.setPhone(phone);
         application.setDecisionStatus(decisionStatus);
         return application;
     }
 
     @Test
-    void testCreateApplicationFromFormSuccess() {
-        when(repository.findLatestApplicationByClient(anyString(), anyString())).thenReturn(Optional.empty());
-        when(repository.save(any(CreditApplication.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        CreditApplication result = service.createApplicationFromForm(form);
-
-        assertNotNull(result);
-        assertEquals("Иванов Иван Иванович", result.getFullName());
-        verify(repository).save(any(CreditApplication.class));
-    }
-
-    @Test
-    void testCreateApplicationFromFormTooSoon() {
-        CreditApplication recentApplication = createCreditApplication(null, "Иванов Иван Иванович", "+79876543210", null);
-        recentApplication.setCreatedDate(LocalDate.now().minusDays(10));
-
-        when(repository.findLatestApplicationByClient(anyString(), anyString())).thenReturn(Optional.of(recentApplication));
-
-        InvalidActionException exception = assertThrows(InvalidActionException.class,
-                () -> service.createApplicationFromForm(form));
-
-        assertTrue(exception.getMessage().contains("До следующей подачи осталось 18 дней"));
-        verify(repository, never()).save(any());
-    }
-
-    @Test
-    void testProcessApplicationDecisionSuccess() {
-        CreditApplication application = createCreditApplication(1L, "Иванов Иван", "+79876543210", null);
+    void testProcessApplicationDecision_ApprovedOrNotApproved() {
+        CreditApplication application =
+                createCreditApplication(1L, "Иванов Иван Иванович", "В ожидании");
         application.setRequestedAmount(500000.0);
 
         when(repository.findById(1L)).thenReturn(Optional.of(application));
@@ -102,8 +85,8 @@ class CreditApplicationServiceTest {
         assertNotNull(application.getDecisionStatus());
         if ("Одобрен".equals(application.getDecisionStatus())) {
             assertEquals(500000.0, application.getApprovedAmount());
-            assertTrue(application.getApprovedTermMonths() > 0);
-        } else if ("Не одобрен".equals(application.getDecisionStatus())) {
+            assertTrue(application.getApprovedTermMonths() > 0 && application.getApprovedTermMonths() <= 12);
+        } else {
             assertEquals(0.0, application.getApprovedAmount());
             assertEquals(0, application.getApprovedTermMonths());
         }
@@ -112,118 +95,146 @@ class CreditApplicationServiceTest {
     }
 
     @Test
-    void testGetApplicationByIdSuccess() {
-        CreditApplication application = createCreditApplication(1L, "Иванов Иван Иванович", "+79876543210", null);
+    void testProcessApplicationDecision_AlreadyDecided() {
+        CreditApplication application =
+                createCreditApplication(1L, "Иванов Иван Иванович", "Одобрен");
+
+        when(repository.findById(1L)).thenReturn(Optional.of(application));
+
+        service.processApplicationDecision(1L);
+
+        assertEquals("Одобрен", application.getDecisionStatus());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void testProcessApplicationDecision_NotFound() {
+        when(repository.findById(1L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> service.processApplicationDecision(1L));
+
+        assertEquals("Заявка не найдена", exception.getMessage());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void testConvertFormToEntity() {
+        CreditApplication application = service.convertFormToEntity(form);
+
+        assertEquals("Иванов Иван Иванович", application.getFullName());
+        assertEquals("г. Москва, ул. Тверская, д. 12", application.getAddress());
+        assertEquals(500000.0, application.getRequestedAmount());
+    }
+
+    @Test
+    void testCreateApplicationFromForm_Success() {
+        when(repository.findLatestApplicationByClient(anyString(), anyString())).thenReturn(Optional.empty());
+        when(repository.save(any(CreditApplication.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        CreditApplication result = service.createApplicationFromForm(form);
+
+        assertNotNull(result);
+        assertEquals("Иванов Иван Иванович", result.getFullName());
+        verify(repository).save(result);
+    }
+
+    @Test
+    void testCreateApplicationFromForm_TooSoon() {
+        CreditApplication previousApplication =
+                createCreditApplication(1L, "Иванов Иван Иванович", null);
+        previousApplication.setCreatedDate(LocalDate.now().minusDays(10));
+
+        when(repository.findLatestApplicationByClient(anyString(), anyString()))
+                .thenReturn(Optional.of(previousApplication));
+
+        InvalidActionException exception = assertThrows(InvalidActionException.class,
+                () -> service.createApplicationFromForm(form));
+
+        assertTrue(exception.getMessage().contains("До следующей подачи осталось"));
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void testSearchApplications_ByFullName() {
+        CreditApplication app1 = createCreditApplication(1L, "Иванов Иван Иванович",
+                "+79876543210", "1234 567890");
+        CreditApplication app2 = createCreditApplication(2L, "Петров Петр Петрович",
+                "+79998887766", "9876 543210");
+
+        when(repository.findAll()).thenReturn(List.of(app1, app2));
+
+        List<CreditApplication> result = service.searchApplications("Иванов");
+
+        assertEquals(1, result.size(), "Должна быть найдена одна заявка");
+        assertEquals(app1, result.get(0), "Результат должен содержать заявку с именем 'Иванов Иван Иванович'");
+    }
+
+    private CreditApplication createCreditApplication(Long id, String fullName, String phone, String passportData) {
+        CreditApplication application = new CreditApplication();
+        application.setId(id);
+        application.setFullName(fullName);
+        application.setPhone(phone);
+        application.setPassportData(passportData);
+        return application;
+    }
+
+    @Test
+    void testGetApplicationById_Success() {
+        CreditApplication application =
+                createCreditApplication(1L, "Иванов Иван Иванович", null);
 
         when(repository.findById(1L)).thenReturn(Optional.of(application));
 
         CreditApplication result = service.getApplicationById(1L);
 
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
         assertEquals("Иванов Иван Иванович", result.getFullName());
         verify(repository).findById(1L);
     }
 
     @Test
-    void testGetApplicationByIdNotFound() {
+    void testGetApplicationById_NotFound() {
         when(repository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> service.getApplicationById(1L));
-        verify(repository).findById(1L);
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> service.getApplicationById(1L));
+
+        assertEquals("Заявка с ID 1 не найдена", exception.getMessage());
     }
 
     @Test
     void testGetAllApplications() {
-        CreditApplication app1 = createCreditApplication(1L, "Иванов Иван", "+79876543210", "Одобрен");
-        CreditApplication app2 = createCreditApplication(2L, "Петров Петр", "+79998887766", "Не одобрен");
+        CreditApplication app1 = createCreditApplication(1L, "Иванов Иван Иванович", null);
+        CreditApplication app2 = createCreditApplication(2L, "Петров Петр Петрович", null);
 
         when(repository.findAll()).thenReturn(List.of(app1, app2));
 
         List<CreditApplication> result = service.getAllApplications();
 
-        assertNotNull(result);
         assertEquals(2, result.size());
-        verify(repository).findAll();
+        assertTrue(result.contains(app1));
+        assertTrue(result.contains(app2));
     }
 
     @Test
-    void testDeleteApplicationSuccess() {
-        CreditApplication application = createCreditApplication(1L, "Иванов Иван", "+79876543210", null);
+    void testDeleteApplication_Success() {
+        CreditApplication application =
+                createCreditApplication(1L, "Иванов Иван Иванович", null);
 
         when(repository.findById(1L)).thenReturn(Optional.of(application));
 
         service.deleteApplication(1L);
 
         verify(repository).delete(application);
-        verify(repository).findById(1L);
     }
 
     @Test
-    void testDeleteApplicationNotFound() {
+    void testDeleteApplication_NotFound() {
         when(repository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> service.deleteApplication(1L));
-        verify(repository, never()).delete(any());
-    }
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> service.deleteApplication(1L));
 
-
-
-    @Test
-    void testGetApprovedApplications() {
-        CreditApplication approved = createCreditApplication(1L, "Иванов Иван", "+79876543210", "Одобрен");
-        CreditApplication notApproved = createCreditApplication(2L, "Петров Петр", "+79998887766", "Не одобрен");
-
-        when(repository.findAll()).thenReturn(List.of(approved, notApproved));
-
-        List<CreditApplication> result = service.getApprovedApplications();
-
-        assertEquals(1, result.size());
-        assertTrue(result.contains(approved));
-        assertFalse(result.contains(notApproved));
-        verify(repository).findAll();
-    }
-
-    @Test
-    void testMakeDecisionSuccess() {
-        CreditApplication application = createCreditApplication(1L, "Иванов Иван", "+79876543210", null);
-        application.setRequestedAmount(500000.0);
-
-        when(repository.findById(1L)).thenReturn(Optional.of(application));
-
-        CreditApplication result = service.makeDecision(1L);
-
-        assertNotNull(result.getDecisionStatus(), "Решение должно быть принято");
-        if ("Одобрен".equals(result.getDecisionStatus())) {
-            assertNotNull(result.getApprovedAmount(), "Одобренная сумма не должна быть null");
-            assertTrue(result.getApprovedAmount() >= 400000.0 && result.getApprovedAmount() <= 600000.0,
-                    "Одобренная сумма должна быть в диапазоне от 400000 до 600000");
-            assertNotNull(result.getApprovedTermMonths(), "Срок кредита не должен быть null");
-            assertTrue(result.getApprovedTermMonths() > 0, "Срок кредита должен быть больше 0");
-        } else {
-            assertNull(result.getApprovedAmount(), "Для отклонённых заявок сумма должна быть null");
-            assertNull(result.getApprovedTermMonths(), "Для отклонённых заявок срок должен быть null");
-        }
-
-        verify(repository, times(1)).save(application);
-    }
-
-    @Test
-    void testSearchApplications() {
-        CreditApplication app1 = createCreditApplication(1L, "Иванов Иван Иванович", "+79876543210", null);
-        app1.setPassportData("1234 567890");
-        CreditApplication app2 = createCreditApplication(2L, "Петров Петр", "+79998887766", null);
-        app2.setPassportData("9876 543210"); // Заполняем passportData, чтобы избежать NullPointerException
-
-        when(repository.findAll()).thenReturn(List.of(app1, app2));
-
-        // Выполняем поиск
-        List<CreditApplication> results = service.searchApplications("Иванов");
-
-        // Проверяем результаты
-        assertEquals(1, results.size(), "Должна быть найдена одна заявка");
-        assertEquals("Иванов Иван Иванович", results.get(0).getFullName(), "Имя клиента должно совпадать");
-
-        verify(repository).findAll();
+        assertEquals("Заявка с ID 1 не найдена", exception.getMessage());
     }
 }

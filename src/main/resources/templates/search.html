@@ -6,36 +6,31 @@
     <title>Поиск клиента</title>
 </head>
 <body>
-<!-- Заголовок -->
 <div style="background-color: #d4f3d1; padding: 10px; text-align: center;">
     <h1>Поиск клиента</h1>
 </div>
 
-<!-- Основное содержимое -->
 <div style="display: flex; justify-content: space-between; padding: 20px;">
-    <!-- Левая часть: форма для ввода параметров поиска -->
     <div style="flex: 3; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9;">
         <h3>Введите параметры поиска:</h3>
         <form th:action="@{/applications/search}" method="get">
             <label for="query">Ключевое слово:</label><br>
-            <input type="text" id="query" name="query" placeholder="ФИО, паспортные данные, телефон" style="width: 100%; padding: 5px; margin-top: 5px;"><br><br>
+            <input type="text" id="query" name="query" placeholder="ФИО, паспортные данные, телефон"
+                   style="width: 100%; padding: 5px; margin-top: 5px;"><br><br>
             <button type="submit" style="padding: 10px 20px; background-color: #62bf82; color: white; border: none; border-radius: 5px; font-weight: bold;">
                 Найти
             </button>
         </form>
     </div>
 
-    <!-- Правая часть: результаты поиска -->
     <div style="flex: 3; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9;">
         <h3>Результаты поиска:</h3>
         <ul>
-            <!-- Динамически выводимые результаты -->
             <li th:each="result : ${searchResults}" th:text="${result.fullName}">Имя клиента</li>
         </ul>
     </div>
 </div>
 
-<!-- Ссылка для возврата в главное меню -->
 <div style="text-align: center; margin-top: 20px;">
     <a th:href="@{/applications/}"
        style="display: inline-block; padding: 10px 20px; background-color: #62bf82; color: black; text-decoration: none; border-radius: 5px; font-weight: bold;">

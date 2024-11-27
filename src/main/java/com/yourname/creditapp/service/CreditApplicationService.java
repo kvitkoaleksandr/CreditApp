@@ -32,17 +32,14 @@ public class CreditApplicationService {
         CreditApplication application = repository.findById(applicationId)
                 .orElseThrow(() -> new EntityNotFoundException("Заявка не найдена"));
 
-        // Проверка на существующий статус
         if (application.getDecisionStatus() != null && !application.getDecisionStatus().equals("В ожидании")) {
             log.info("Решение по заявке с ID {} уже принято: {}", applicationId, application.getDecisionStatus());
             return; // Решение уже существует
         }
 
-        // Генерация решения
         String decision = Math.random() > 0.5 ? "Одобрен" : "Не одобрен";
         application.setDecisionStatus(decision);
 
-        // Обновление параметров в зависимости от решения
         if ("Одобрен".equals(decision)) {
             application.setApprovedAmount(application.getRequestedAmount());
             application.setApprovedTermMonths((int) (1 + Math.random() * 12)); // Срок от 1 до 12 месяцев
@@ -51,21 +48,17 @@ public class CreditApplicationService {
             application.setApprovedTermMonths(0);
         }
 
-        // Сохранение изменений
         log.info("Заявка до обновления: {}", application);
         repository.save(application);
         log.info("Заявка после обновления: {}", application);
         log.info("Решение по заявке с ID {} принято: {}", applicationId, decision);
     }
 
-    // Преобразование CreditApplicationForm в CreditApplication
     public CreditApplication convertFormToEntity(CreditApplicationForm form) {
         CreditApplication application = new CreditApplication();
 
-        // Конкатенация для создания полного имени
         application.setFullName(form.getLastName() + " " + form.getFirstName() + " " + form.getMiddleName());
 
-        // Конкатенация для создания полного адреса
         application.setAddress("г. " + form.getCity() + ", ул. " + form.getStreet() + ", д. " + form.getHouseNumber());
 
         application.setPhone(form.getPhone());
@@ -85,13 +78,13 @@ public class CreditApplicationService {
                 form.getFirstName(), form.getLastName());
 
         CreditApplication application = convertFormToEntity(form);
-
-        // Проверяем, есть ли предыдущая заявка
-        Optional<CreditApplication> latestApplication = findLatestApplication(application.getFullName(), form.getPassportData());
+        Optional<CreditApplication> latestApplication = findLatestApplication(application.getFullName(),
+                form.getPassportData());
 
         if (latestApplication.isPresent()) {
             CreditApplication previousApplication = latestApplication.get();
-            long daysSinceLastApplication = ChronoUnit.DAYS.between(previousApplication.getCreatedDate(), LocalDate.now());
+            long daysSinceLastApplication = ChronoUnit.DAYS.between(previousApplication
+                    .getCreatedDate(), LocalDate.now());
 
             if (daysSinceLastApplication < 28) {
                 long daysLeft = 28 - daysSinceLastApplication;
@@ -118,7 +111,8 @@ public class CreditApplicationService {
         List<CreditApplication> results = repository.findAll().stream()
                 .filter(application ->
                         application.getFullName().toLowerCase().contains(query.toLowerCase()) ||
-                                application.getPhone().replace("+", "").contains(query.replace("+", "")) ||
+                                application.getPhone().replace("+", "")
+                                        .contains(query.replace("+", "")) ||
                                 application.getPassportData().contains(query))
                 .toList();
 
@@ -142,7 +136,6 @@ public class CreditApplicationService {
                     return new EntityNotFoundException("Заявка с ID " + applicationId + " не найдена");
                 });
 
-        // Проверяем, есть ли уже принятое решение
         if (application.getDecisionStatus() != null) {
             log.warn("Решение по заявке с ID {} уже принято: '{}'.", applicationId, application.getDecisionStatus());
             return application; // Возвращаем без изменений
@@ -165,10 +158,6 @@ public class CreditApplicationService {
         repository.save(application);
         return application;
     }
-
-//        repository.save(application);
-//        return application;
-//    }
 
     public CreditApplication getApplicationById(Long id) {
         log.debug("Получение кредитной заявки с ID: {}", id);

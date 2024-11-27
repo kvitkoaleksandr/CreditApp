@@ -1,18 +1,16 @@
 package com.yourname.creditapp.controller;
 
+import com.yourname.creditapp.dto.CreditApplicationForm;
 import com.yourname.creditapp.entitiy.CreditApplication;
 import com.yourname.creditapp.entitiy.CreditContract;
-import com.yourname.creditapp.exception.EntityNotFoundException;
-import com.yourname.creditapp.exception.InvalidActionException;
-import jakarta.validation.Valid;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import com.yourname.creditapp.dto.CreditApplicationForm;
 import com.yourname.creditapp.service.CreditApplicationService;
 import com.yourname.creditapp.service.CreditContractService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +29,6 @@ public class CreditApplicationController {
     public String checkDecision(@RequestParam("id") Long applicationId, Model model) {
         service.processApplicationDecision(applicationId);
 
-        // Загрузка актуальных данных
         CreditApplication application = service.getApplicationById(applicationId);
         log.info("Решение по заявке: {}", application.getDecisionStatus());
 
@@ -39,25 +36,22 @@ public class CreditApplicationController {
         return "decisionPage";
     }
 
-
     @PostMapping("/submit")
     public String submitApplication(
             @Valid @ModelAttribute("newCreditApplicationForm") CreditApplicationForm form,
             BindingResult bindingResult,
             Model model) {
         if (bindingResult.hasErrors()) {
-            return "createApplication"; // Возвращаем форму при ошибках
+            return "createApplication";
         }
 
         try {
-            // Создание и сохранение заявки
             CreditApplication savedApplication = service.createApplicationFromForm(form);
             model.addAttribute("createdApplication", savedApplication);
-
-            // Перенаправляем на страницу результата
             return "applicationSaved";
         } catch (Exception ex) {
-            model.addAttribute("errorMessage", "Произошла ошибка при сохранении заявки: " + ex.getMessage());
+            model.addAttribute("errorMessage",
+                    "Произошла ошибка при сохранении заявки: " + ex.getMessage());
             return "errorPage";
         }
     }
@@ -77,37 +71,35 @@ public class CreditApplicationController {
         return "clients";
     }
 
-    // Главная страница
     @GetMapping("/")
     public String getIndexPage() {
         return "index";
     }
 
-    // Страница для создания заявки
     @GetMapping("/create")
     public String getCreateApplicationPage(Model model) {
         log.debug("Загрузка страницы для создания заявки на кредит");
         model.addAttribute("newCreditApplicationForm", new CreditApplicationForm());
-        return "createApplication"; // шаблон createApplication.html
+        return "createApplication";
     }
 
-    // Сохранение новой заявки
     @PostMapping("/create")
-    public String createApplication(@ModelAttribute("newCreditApplicationForm") CreditApplicationForm form, Model model) {
-        log.info("Получен запрос на создание заявки для клиента: {} {} {}", form.getLastName(), form.getFirstName(), form.getMiddleName());
+    public String createApplication(@ModelAttribute("newCreditApplicationForm")
+                                    CreditApplicationForm form, Model model) {
+        log.info("Получен запрос на создание заявки для клиента: {} {} {}",
+                form.getLastName(), form.getFirstName(), form.getMiddleName());
         try {
-            // Создаём заявку из формы
             CreditApplication savedApplication = service.createApplicationFromForm(form);
             model.addAttribute("createdApplication", savedApplication);
-            return "applicationSaved"; // шаблон applicationSaved.html
+            return "applicationSaved";
         } catch (Exception ex) {
             log.error("Ошибка при сохранении заявки: {}", ex.getMessage(), ex);
-            model.addAttribute("errorMessage", "Не удалось сохранить заявку. Попробуйте позже.");
-            return "createApplication"; // вернуть пользователя на форму с ошибкой
+            model.addAttribute("errorMessage",
+                    "Не удалось сохранить заявку. Попробуйте позже.");
+            return "createApplication";
         }
     }
 
-    // Принятие решения по заявке
     @GetMapping("/{id}/decision")
     public String getDecisionPage(@PathVariable Long id, Model model) {
         log.info("Принятие решения по заявке с ID: {}", id);
@@ -116,7 +108,6 @@ public class CreditApplicationController {
         return "decisionPage";
     }
 
-    // Подписание кредитного договора
     @GetMapping("/{id}/sign")
     public String signContract(@PathVariable Long id, Model model) {
         log.info("Подписание договора по заявке с ID: {}", id);
@@ -126,7 +117,6 @@ public class CreditApplicationController {
         return "contractSigned";
     }
 
-    // Вывод списка всех клиентов
     @GetMapping("/clients")
     public String getAllClientsPage(Model model) {
         List<String> clients = service.getAllApplications().stream()
@@ -136,7 +126,6 @@ public class CreditApplicationController {
         return "clients";
     }
 
-    // Поиск клиента по параметрам
     @GetMapping("/search")
     public String searchApplications(@RequestParam(required = false) String query, Model model) {
         if (query == null || query.isBlank()) {
@@ -149,16 +138,13 @@ public class CreditApplicationController {
         return "search";
     }
 
-
-    // Вывод списка одобренных заявок
     @GetMapping("/approved/view")
     public String getApprovedApplicationsPage(Model model) {
         List<CreditApplication> approvedApplications = service.getApprovedApplications();
         model.addAttribute("approvedApps", approvedApplications);
-        return "approvedApplications"; // Указываем имя шаблона
+        return "approvedApplications";
     }
 
-    // Вывод подписанных договоров
     @GetMapping("/contracts/signed/view")
     public String getSignedContractsPage(Model model) {
         List<CreditContract> signedContracts = contractService.getSignedContracts();
@@ -166,7 +152,6 @@ public class CreditApplicationController {
         return "signedContracts";
     }
 
-    // Вывод всех заявок
     @GetMapping("/view")
     public String getAllApplicationsPage(Model model) {
         List<CreditApplication> applications = service.getAllApplications();

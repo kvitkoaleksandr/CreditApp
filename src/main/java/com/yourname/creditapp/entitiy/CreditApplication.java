@@ -14,22 +14,19 @@ public class CreditApplication {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(updatable = false)
+    private LocalDate createdDate = LocalDate.now();
+
     private String fullName;
     private String passportData;
     private String maritalStatus;
     private String address;
     private String phone;
-
-    private String employmentDuration; // Можно оставить пустым, если не обязательно на этапе создания.
-    private String jobTitle; // Должность, оставить пустым при создании.
-    private String companyName; // Название организации.
-
+    private String employmentDuration;
+    private String jobTitle;
+    private String companyName;
     private Double requestedAmount;
-
-    private String decisionStatus = "В ожидании"; // По умолчанию, статус заявки до принятия решения.
-    private Integer approvedTermMonths; // Определяется только при одобрении заявки.
-    private Double approvedAmount; // Определяется только при одобрении заявки.
-
-    @Column(updatable = false)
-    private LocalDate createdDate = LocalDate.now(); // Автоматически назначается текущая дата при создании.
+    private String decisionStatus;
+    private Integer approvedTermMonths;
+    private Double approvedAmount;
 }
