@@ -166,10 +166,6 @@ public class CreditApplicationService {
         return application;
     }
 
-//        repository.save(application);
-//        return application;
-//    }
-
     public CreditApplication getApplicationById(Long id) {
         log.debug("Получение кредитной заявки с ID: {}", id);
         return repository.findById(id)
