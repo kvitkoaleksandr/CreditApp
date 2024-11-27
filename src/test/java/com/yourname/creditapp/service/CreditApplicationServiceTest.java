@@ -37,10 +37,10 @@ class CreditApplicationServiceTest {
         form = createCreditApplicationForm("Иван", "Иванов",
                 "Иванович", "Москва", "Тверская", "12",
                 "+79876543210", "Женат", "36",
-                "Менеджер", "ООО Рога и Копыта", "1234 567890", 500000.0);
+                "Менеджер", "ООО Рога и Копыта",
+                "1234 567890", 500000.0);
     }
 
-    // Вспомогательные методы
     private CreditApplicationForm createCreditApplicationForm(
             String firstName, String lastName, String middleName,
             String city, String street, String houseNumber, String phone,
@@ -72,10 +72,10 @@ class CreditApplicationServiceTest {
         return application;
     }
 
-    // Тесты для processApplicationDecision
     @Test
     void testProcessApplicationDecision_ApprovedOrNotApproved() {
-        CreditApplication application = createCreditApplication(1L, "Иванов Иван Иванович", "В ожидании");
+        CreditApplication application =
+                createCreditApplication(1L, "Иванов Иван Иванович", "В ожидании");
         application.setRequestedAmount(500000.0);
 
         when(repository.findById(1L)).thenReturn(Optional.of(application));
@@ -96,7 +96,8 @@ class CreditApplicationServiceTest {
 
     @Test
     void testProcessApplicationDecision_AlreadyDecided() {
-        CreditApplication application = createCreditApplication(1L, "Иванов Иван Иванович", "Одобрен");
+        CreditApplication application =
+                createCreditApplication(1L, "Иванов Иван Иванович", "Одобрен");
 
         when(repository.findById(1L)).thenReturn(Optional.of(application));
 
@@ -117,7 +118,6 @@ class CreditApplicationServiceTest {
         verify(repository, never()).save(any());
     }
 
-    // Тесты для convertFormToEntity
     @Test
     void testConvertFormToEntity() {
         CreditApplication application = service.convertFormToEntity(form);
@@ -127,7 +127,6 @@ class CreditApplicationServiceTest {
         assertEquals(500000.0, application.getRequestedAmount());
     }
 
-    // Тесты для createApplicationFromForm
     @Test
     void testCreateApplicationFromForm_Success() {
         when(repository.findLatestApplicationByClient(anyString(), anyString())).thenReturn(Optional.empty());
@@ -142,7 +141,8 @@ class CreditApplicationServiceTest {
 
     @Test
     void testCreateApplicationFromForm_TooSoon() {
-        CreditApplication previousApplication = createCreditApplication(1L, "Иванов Иван Иванович", null);
+        CreditApplication previousApplication =
+                createCreditApplication(1L, "Иванов Иван Иванович", null);
         previousApplication.setCreatedDate(LocalDate.now().minusDays(10));
 
         when(repository.findLatestApplicationByClient(anyString(), anyString()))
@@ -155,20 +155,17 @@ class CreditApplicationServiceTest {
         verify(repository, never()).save(any());
     }
 
-    // Тесты для searchApplications
     @Test
     void testSearchApplications_ByFullName() {
-        // Подготовка данных
-        CreditApplication app1 = createCreditApplication(1L, "Иванов Иван Иванович", "+79876543210", "1234 567890");
-        CreditApplication app2 = createCreditApplication(2L, "Петров Петр Петрович", "+79998887766", "9876 543210");
+        CreditApplication app1 = createCreditApplication(1L, "Иванов Иван Иванович",
+                "+79876543210", "1234 567890");
+        CreditApplication app2 = createCreditApplication(2L, "Петров Петр Петрович",
+                "+79998887766", "9876 543210");
 
-        // Мок репозитория
         when(repository.findAll()).thenReturn(List.of(app1, app2));
 
-        // Вызов метода
         List<CreditApplication> result = service.searchApplications("Иванов");
 
-        // Проверка результата
         assertEquals(1, result.size(), "Должна быть найдена одна заявка");
         assertEquals(app1, result.get(0), "Результат должен содержать заявку с именем 'Иванов Иван Иванович'");
     }
@@ -182,10 +179,10 @@ class CreditApplicationServiceTest {
         return application;
     }
 
-    // Тесты для getApplicationById
     @Test
     void testGetApplicationById_Success() {
-        CreditApplication application = createCreditApplication(1L, "Иванов Иван Иванович", null);
+        CreditApplication application =
+                createCreditApplication(1L, "Иванов Иван Иванович", null);
 
         when(repository.findById(1L)).thenReturn(Optional.of(application));
 
@@ -205,7 +202,6 @@ class CreditApplicationServiceTest {
         assertEquals("Заявка с ID 1 не найдена", exception.getMessage());
     }
 
-    // Тесты для getAllApplications
     @Test
     void testGetAllApplications() {
         CreditApplication app1 = createCreditApplication(1L, "Иванов Иван Иванович", null);
@@ -220,10 +216,10 @@ class CreditApplicationServiceTest {
         assertTrue(result.contains(app2));
     }
 
-    // Тесты для deleteApplication
     @Test
     void testDeleteApplication_Success() {
-        CreditApplication application = createCreditApplication(1L, "Иванов Иван Иванович", null);
+        CreditApplication application =
+                createCreditApplication(1L, "Иванов Иван Иванович", null);
 
         when(repository.findById(1L)).thenReturn(Optional.of(application));
 

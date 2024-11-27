@@ -68,91 +68,79 @@
     <div class="form-container">
         <h3>Заполните форму для подачи заявления:</h3>
         <form th:action="@{/applications/submit}" method="post" th:object="${newCreditApplicationForm}">
-            <!-- Поле Фамилия -->
             <label for="lastName">Фамилия:</label>
             <span class="error" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></span>
             <input type="text" id="lastName" name="lastName"
                    th:classappend="${#fields.hasErrors('lastName')} ? 'error-border' : ''"
                    th:value="*{lastName}">
 
-            <!-- Поле Имя -->
             <label for="firstName">Имя:</label>
             <span class="error" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></span>
             <input type="text" id="firstName" name="firstName"
                    th:classappend="${#fields.hasErrors('firstName')} ? 'error-border' : ''"
                    th:value="*{firstName}">
 
-            <!-- Поле Отчество -->
             <label for="middleName">Отчество:</label>
             <span class="error" th:if="${#fields.hasErrors('middleName')}" th:errors="*{middleName}"></span>
             <input type="text" id="middleName" name="middleName"
                    th:classappend="${#fields.hasErrors('middleName')} ? 'error-border' : ''"
                    th:value="*{middleName}">
 
-            <!-- Поле Паспортные данные -->
             <label for="passportData">Паспортные данные:</label>
             <span class="error" th:if="${#fields.hasErrors('passportData')}" th:errors="*{passportData}"></span>
             <input type="text" id="passportData" name="passportData"
                    th:classappend="${#fields.hasErrors('passportData')} ? 'error-border' : ''"
                    th:value="*{passportData}">
 
-            <!-- Поле Город -->
             <label for="city">Город:</label>
             <span class="error" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></span>
             <input type="text" id="city" name="city"
                    th:classappend="${#fields.hasErrors('city')} ? 'error-border' : ''"
                    th:value="*{city}">
 
-            <!-- Поле Улица -->
             <label for="street">Улица:</label>
             <span class="error" th:if="${#fields.hasErrors('street')}" th:errors="*{street}"></span>
             <input type="text" id="street" name="street"
                    th:classappend="${#fields.hasErrors('street')} ? 'error-border' : ''"
                    th:value="*{street}">
 
-            <!-- Поле Номер дома -->
             <label for="houseNumber">Дом:</label>
             <span class="error" th:if="${#fields.hasErrors('houseNumber')}" th:errors="*{houseNumber}"></span>
             <input type="text" id="houseNumber" name="houseNumber"
                    th:classappend="${#fields.hasErrors('houseNumber')} ? 'error-border' : ''"
                    th:value="*{houseNumber}">
 
-            <!-- Поле Телефон -->
             <label for="phone">Телефон:</label>
             <span class="error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></span>
             <input type="text" id="phone" name="phone"
                    th:classappend="${#fields.hasErrors('phone')} ? 'error-border' : ''"
                    th:value="*{phone}">
 
-            <!-- Поле Семейное положение -->
             <label for="maritalStatus">Семейное положение:</label>
             <span class="error" th:if="${#fields.hasErrors('maritalStatus')}" th:errors="*{maritalStatus}"></span>
             <input type="text" id="maritalStatus" name="maritalStatus"
                    th:classappend="${#fields.hasErrors('maritalStatus')} ? 'error-border' : ''"
                    th:value="*{maritalStatus}">
 
-            <!-- Поле Срок занятости -->
             <label for="employmentDuration">Срок занятости:</label>
-            <span class="error" th:if="${#fields.hasErrors('employmentDuration')}" th:errors="*{employmentDuration}"></span>
+            <span class="error" th:if="${#fields.hasErrors('employmentDuration')}"
+                  th:errors="*{employmentDuration}"></span>
             <input type="text" id="employmentDuration" name="employmentDuration"
                    th:classappend="${#fields.hasErrors('employmentDuration')} ? 'error-border' : ''"
                    th:value="*{employmentDuration}">
 
-            <!-- Поле Должность -->
             <label for="jobTitle">Должность:</label>
             <span class="error" th:if="${#fields.hasErrors('jobTitle')}" th:errors="*{jobTitle}"></span>
             <input type="text" id="jobTitle" name="jobTitle"
                    th:classappend="${#fields.hasErrors('jobTitle')} ? 'error-border' : ''"
                    th:value="*{jobTitle}">
 
-            <!-- Поле Название компании -->
             <label for="companyName">Название компании:</label>
             <span class="error" th:if="${#fields.hasErrors('companyName')}" th:errors="*{companyName}"></span>
             <input type="text" id="companyName" name="companyName"
                    th:classappend="${#fields.hasErrors('companyName')} ? 'error-border' : ''"
                    th:value="*{companyName}">
 
-            <!-- Поле Сумма кредита -->
             <label for="requestedAmount">Сумма кредита:</label>
             <span class="error" th:if="${#fields.hasErrors('requestedAmount')}" th:errors="*{requestedAmount}"></span>
             <input type="number" id="requestedAmount" name="requestedAmount"

@@ -6,23 +6,18 @@
     <title>Список заявок со статусом "Одобрено"</title>
 </head>
 <body>
-<!-- Заголовок -->
 <div style="background-color: #d4f3d1; padding: 10px; text-align: center;">
     <h1>Список заявок со статусом "Одобрено"</h1>
 </div>
 
-<!-- Основное содержимое -->
 <div style="display: flex; justify-content: space-between; padding: 20px;">
-    <!-- Левая часть: список заявок -->
     <div style="flex: 3; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9;">
         <h3>Одобренные заявки:</h3>
         <ul>
-            <!-- Динамически подставляемый список -->
             <li th:each="app : ${approvedApps}" th:text="${app.fullName}">Имя клиента</li>
         </ul>
     </div>
 
-    <!-- Правая часть: кнопка возврата -->
     <div style="flex: 1; text-align: center;">
         <a th:href="@{/applications/}"
            style="display: inline-block; padding: 10px 20px; background-color: #62bf82; color: black; text-decoration: none; border-radius: 5px; font-weight: bold;">

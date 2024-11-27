@@ -5,7 +5,6 @@ import com.yourname.creditapp.entitiy.CreditContract;
 import com.yourname.creditapp.exception.EntityNotFoundException;
 import com.yourname.creditapp.exception.InvalidActionException;
 import com.yourname.creditapp.repository.interfaces.CreditContractRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,7 +29,6 @@ class CreditContractServiceTest {
     @InjectMocks
     private CreditContractService service;
 
-    // Вспомогательный метод для создания CreditContract
     private CreditContract createCreditContract(Long id, CreditApplication application, String status) {
         CreditContract contract = new CreditContract();
         contract.setId(id);
@@ -40,7 +38,6 @@ class CreditContractServiceTest {
         return contract;
     }
 
-    // Вспомогательный метод для создания CreditApplication
     private CreditApplication createCreditApplication(Long id, String decisionStatus) {
         CreditApplication application = new CreditApplication();
         application.setId(id);
@@ -83,7 +80,8 @@ class CreditContractServiceTest {
     void testSignContract_NotApprovedApplication() {
         CreditApplication application = createCreditApplication(1L, "Не одобрен");
 
-        InvalidActionException exception = assertThrows(InvalidActionException.class, () -> service.signContract(application));
+        InvalidActionException exception = assertThrows(InvalidActionException.class,
+                () -> service.signContract(application));
 
         assertEquals("Договор можно подписать только для одобренной заявки.", exception.getMessage());
 
@@ -98,7 +96,8 @@ class CreditContractServiceTest {
 
         when(contractRepository.findByApplicationId(application.getId())).thenReturn(Optional.of(existingContract));
 
-        InvalidActionException exception = assertThrows(InvalidActionException.class, () -> service.signContract(application));
+        InvalidActionException exception = assertThrows(InvalidActionException.class,
+                () -> service.signContract(application));
 
         assertEquals("Договор для заявки с ID 1 уже существует.", exception.getMessage());
 
@@ -125,7 +124,8 @@ class CreditContractServiceTest {
     void testGetContractById_NotFound() {
         when(contractRepository.findById(1L)).thenReturn(Optional.empty());
 
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> service.getContractById(1L));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> service.getContractById(1L));
 
         assertEquals("Договор с ID 1 не найден", exception.getMessage());
 

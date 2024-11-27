@@ -56,7 +56,6 @@
         <h1>Заявка успешно сохранена!</h1>
     </div>
 
-    <!-- Проверяем, существует ли объект createdApplication -->
     <div th:if="${createdApplication != null}">
         <p class="details">Фамилия: <span th:text="${createdApplication.fullName.split(' ')[0]}">Иванов</span></p>
         <p class="details">Имя: <span th:text="${createdApplication.fullName.split(' ')[1]}">Иван</span></p>
@@ -64,16 +63,12 @@
         <p class="details">Сумма кредита: <span th:text="${createdApplication.requestedAmount}">500000</span></p>
     </div>
 
-    <!-- Сообщение об ошибке, если createdApplication == null -->
     <div th:if="${createdApplication == null}" class="error-message">
         <p>Произошла ошибка при сохранении заявки. Попробуйте позже.</p>
     </div>
 
-    <!-- Ссылки для продолжения работы -->
     <div class="links">
-        <!-- Ссылка для проверки решения по заявке -->
         <a th:href="@{/applications/check-decision(id=${createdApplication.id})}" class="link">Проверить решение</a>
-        <!-- Ссылка для возврата в главное меню -->
         <a th:href="@{/applications/}" class="link">Вернуться в главное меню</a>
     </div>
 </div>

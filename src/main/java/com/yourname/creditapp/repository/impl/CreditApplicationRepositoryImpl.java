@@ -12,9 +12,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-// Аннотация @Repository указывает, что этот класс является компонентом, работающим с базой данных.
 @Repository
-@Transactional // Обеспечивает автоматическое управление транзакциями.
+@Transactional
 public class CreditApplicationRepositoryImpl implements CreditApplicationRepository {
 
     @PersistenceContext
@@ -22,12 +21,12 @@ public class CreditApplicationRepositoryImpl implements CreditApplicationReposit
 
     private static final Logger log = LoggerFactory.getLogger(CreditApplicationRepositoryImpl.class);
 
-    // Поиск последней заявки клиента по ФИО и паспортным данным
     @Override
     public Optional<CreditApplication> findLatestApplicationByClient(String fullName, String passportData) {
         log.debug("Поиск последней заявки клиента с ФИО: {} и паспортными данными: {}", fullName, passportData);
         return entityManager.createQuery(
-                        "SELECT c FROM CreditApplication c WHERE c.fullName = :fullName AND c.passportData = :passportData ORDER BY c.createdDate DESC",
+                        "SELECT c FROM CreditApplication c WHERE c.fullName = :fullName " +
+                                "AND c.passportData = :passportData ORDER BY c.createdDate DESC",
                         CreditApplication.class)
                 .setParameter("fullName", fullName)
                 .setParameter("passportData", passportData)
@@ -36,11 +35,11 @@ public class CreditApplicationRepositoryImpl implements CreditApplicationReposit
                 .findFirst();
     }
 
-    // Получение всех заявок
     @Override
     public List<CreditApplication> findAll() {
         log.debug("Получение всех кредитных заявок из базы данных.");
-        return entityManager.createQuery("SELECT c FROM CreditApplication c", CreditApplication.class).getResultList();
+        return entityManager.createQuery("SELECT c FROM CreditApplication c", CreditApplication.class)
+                .getResultList();
     }
 
     // Получение всех одобренных заявок
@@ -48,12 +47,12 @@ public class CreditApplicationRepositoryImpl implements CreditApplicationReposit
     public List<CreditApplication> findApprovedApplications() {
         log.debug("Получение всех одобренных кредитных заявок.");
         return entityManager.createQuery(
-                        "SELECT c FROM CreditApplication c WHERE c.decisionStatus = :status", CreditApplication.class)
+                        "SELECT c FROM CreditApplication c " +
+                                "WHERE c.decisionStatus = :status", CreditApplication.class)
                 .setParameter("status", "Одобрен")
                 .getResultList();
     }
 
-    // Сохранение новой заявки
     @Override
     public CreditApplication save(CreditApplication application) {
         if (application.getId() == null) {
@@ -64,7 +63,6 @@ public class CreditApplicationRepositoryImpl implements CreditApplicationReposit
         return application;
     }
 
-    // Поиск заявки по ID
     @Override
     public Optional<CreditApplication> findById(Long id) {
         log.debug("Поиск кредитной заявки с ID: {}", id);
@@ -75,7 +73,6 @@ public class CreditApplicationRepositoryImpl implements CreditApplicationReposit
         return Optional.ofNullable(application);
     }
 
-    // Удаление заявки по ID
     @Override
     public void deleteById(Long id) {
         log.info("Удаление кредитной заявки с ID: {}", id);
@@ -85,7 +82,6 @@ public class CreditApplicationRepositoryImpl implements CreditApplicationReposit
         );
     }
 
-    // Удаление заявки по объекту
     @Override
     public void delete(CreditApplication application) {
         log.info("Удаление кредитной заявки для клиента: {}", application.getFullName());

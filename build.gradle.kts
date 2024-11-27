@@ -13,24 +13,19 @@ repositories {
 }
 
 dependencies {
-    // Основные зависимости проекта
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     runtimeOnly("org.postgresql:postgresql")
 
-    // Валидация
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
-    // Логирование
     implementation("org.springframework.boot:spring-boot-starter-logging")
 
-    // Lombok
     compileOnly("org.projectlombok:lombok:1.18.28")
     annotationProcessor("org.projectlombok:lombok:1.18.28")
 
-    // Тестирование
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mockito:mockito-core:5.2.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.2.0")

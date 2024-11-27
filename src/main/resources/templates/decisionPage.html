@@ -55,32 +55,26 @@
         Решение по заявке
     </div>
 
-    <!-- Основное содержимое -->
     <div class="details">
         <p th:text="'Заявка для: ' + ${decisionApplication.fullName}">Заявка для: Иванов Иван Иванович</p>
         <p th:text="'Статус: ' + ${decisionApplication.decisionStatus}"></p>
 
-        <!-- Если заявка одобрена -->
         <div th:if="${decisionApplication.decisionStatus == 'Одобрен'}">
             <p th:text="'Одобренная сумма: ' + ${decisionApplication.approvedAmount} + ' RUB'"></p>
             <p th:text="'Срок кредита (мес.): ' + ${decisionApplication.approvedTermMonths}"></p>
         </div>
 
-        <!-- Если заявка не одобрена -->
         <div th:if="${decisionApplication.decisionStatus == 'Не одобрен'}">
             <p>К сожалению, заявка не одобрена.</p>
         </div>
     </div>
 
-    <!-- Действия -->
     <div class="actions">
-        <!-- Ссылка на подписание договора -->
         <a th:if="${decisionApplication.decisionStatus == 'Одобрен'}"
            th:href="@{/applications/{id}/sign(id=${decisionApplication.id})}">
             Подписать договор
         </a>
 
-        <!-- Ссылка для возврата в главное меню -->
         <a th:href="@{/applications/}">Вернуться в главное меню</a>
     </div>
 </div>
