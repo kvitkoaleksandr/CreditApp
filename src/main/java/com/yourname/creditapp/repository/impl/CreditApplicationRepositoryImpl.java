@@ -42,7 +42,6 @@ public class CreditApplicationRepositoryImpl implements CreditApplicationReposit
                 .getResultList();
     }
 
-    // Получение всех одобренных заявок
     @Override
     public List<CreditApplication> findApprovedApplications() {
         log.debug("Получение всех одобренных кредитных заявок.");

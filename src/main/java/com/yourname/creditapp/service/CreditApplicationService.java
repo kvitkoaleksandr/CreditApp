@@ -1,6 +1,6 @@
 package com.yourname.creditapp.service;
 
-import com.yourname.creditapp.dto.CreditApplicationForm;
+import com.yourname.creditapp.dto.CreditApplicationFormDto;
 import com.yourname.creditapp.entitiy.CreditApplication;
 import com.yourname.creditapp.exception.EntityNotFoundException;
 import com.yourname.creditapp.exception.InvalidActionException;
@@ -24,6 +24,7 @@ public class CreditApplicationService {
 
     private static final Logger log = LoggerFactory.getLogger(CreditApplicationService.class);
     private final CreditApplicationRepository repository;
+    private static final int NUMBER_DAYS = 28;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -34,7 +35,7 @@ public class CreditApplicationService {
 
         if (application.getDecisionStatus() != null && !application.getDecisionStatus().equals("В ожидании")) {
             log.info("Решение по заявке с ID {} уже принято: {}", applicationId, application.getDecisionStatus());
-            return; // Решение уже существует
+            return;
         }
 
         String decision = Math.random() > 0.5 ? "Одобрен" : "Не одобрен";
@@ -54,7 +55,7 @@ public class CreditApplicationService {
         log.info("Решение по заявке с ID {} принято: {}", applicationId, decision);
     }
 
-    public CreditApplication convertFormToEntity(CreditApplicationForm form) {
+    public CreditApplication convertFormToEntity(CreditApplicationFormDto form) {
         CreditApplication application = new CreditApplication();
 
         application.setFullName(form.getLastName() + " " + form.getFirstName() + " " + form.getMiddleName());
@@ -73,7 +74,7 @@ public class CreditApplicationService {
     }
 
     @Transactional
-    public CreditApplication createApplicationFromForm(CreditApplicationForm form) {
+    public CreditApplication createApplicationFromForm(CreditApplicationFormDto form) {
         log.info("Создание новой кредитной заявки на основе формы для клиента: {} {}",
                 form.getFirstName(), form.getLastName());
 
@@ -87,7 +88,7 @@ public class CreditApplicationService {
                     .getCreatedDate(), LocalDate.now());
 
             if (daysSinceLastApplication < 28) {
-                long daysLeft = 28 - daysSinceLastApplication;
+                long daysLeft = NUMBER_DAYS - daysSinceLastApplication;
                 log.warn("Клиент {} не может подать заявку. До повторной подачи осталось {} дней.",
                         application.getFullName(), daysLeft);
                 throw new InvalidActionException(

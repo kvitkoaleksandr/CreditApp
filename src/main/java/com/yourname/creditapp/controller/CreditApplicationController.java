@@ -1,10 +1,8 @@
 package com.yourname.creditapp.controller;
 
-import com.yourname.creditapp.dto.CreditApplicationForm;
+import com.yourname.creditapp.dto.CreditApplicationFormDto;
 import com.yourname.creditapp.entitiy.CreditApplication;
-import com.yourname.creditapp.entitiy.CreditContract;
 import com.yourname.creditapp.service.CreditApplicationService;
-import com.yourname.creditapp.service.CreditContractService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -32,13 +30,13 @@ public class CreditApplicationController {
     @GetMapping("/create")
     public String getCreateApplicationPage(Model model) {
         log.debug("Загрузка страницы для создания заявки на кредит");
-        model.addAttribute("newCreditApplicationForm", new CreditApplicationForm());
+        model.addAttribute("newCreditApplicationForm", new CreditApplicationFormDto());
         return "createApplication";
     }
 
     @PostMapping("/submit")
     public String submitApplication(
-            @Valid @ModelAttribute("newCreditApplicationForm") CreditApplicationForm form,
+            @Valid @ModelAttribute("newCreditApplicationForm") CreditApplicationFormDto form,
             BindingResult bindingResult,
             Model model) {
         if (bindingResult.hasErrors()) {
@@ -50,7 +48,8 @@ public class CreditApplicationController {
             model.addAttribute("createdApplication", savedApplication);
             return "applicationSaved";
         } catch (Exception ex) {
-            model.addAttribute("errorMessage", "Произошла ошибка при сохранении заявки: " + ex.getMessage());
+            model.addAttribute("errorMessage",
+                    "Произошла ошибка при сохранении заявки: " + ex.getMessage());
             return "errorPage";
         }
     }
@@ -59,7 +58,7 @@ public class CreditApplicationController {
     public String getAllClientsPage(Model model) {
         List<String> clients = getClients();
         model.addAttribute("clients", clients);
-        return "clients";
+        return "clientsView";
     }
 
     @GetMapping("/search")
@@ -71,7 +70,7 @@ public class CreditApplicationController {
             List<CreditApplication> results = service.searchApplications(query);
             model.addAttribute("searchResults", results);
         }
-        return "search";
+        return "searchView";
     }
 
     @GetMapping("/approved/view")

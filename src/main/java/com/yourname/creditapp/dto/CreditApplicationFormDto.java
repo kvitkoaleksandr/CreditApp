@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Data
-public class CreditApplicationForm {
+public class CreditApplicationFormDto {
     private static final String REQUIRED_MESSAGE = " обязательно для заполнения";
 
     @NotBlank(message = "Фамилия" + REQUIRED_MESSAGE)

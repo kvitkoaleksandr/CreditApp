@@ -1,6 +1,6 @@
 package com.yourname.creditapp.service;
 
-import com.yourname.creditapp.dto.CreditApplicationForm;
+import com.yourname.creditapp.dto.CreditApplicationFormDto;
 import com.yourname.creditapp.entitiy.CreditApplication;
 import com.yourname.creditapp.exception.EntityNotFoundException;
 import com.yourname.creditapp.exception.InvalidActionException;
@@ -30,7 +30,7 @@ class CreditApplicationServiceTest {
     @InjectMocks
     private CreditApplicationService service;
 
-    private CreditApplicationForm form;
+    private CreditApplicationFormDto form;
 
     @BeforeEach
     void setUp() {
@@ -41,13 +41,13 @@ class CreditApplicationServiceTest {
                 "1234 567890", 500000.0);
     }
 
-    private CreditApplicationForm createCreditApplicationForm(
+    private CreditApplicationFormDto createCreditApplicationForm(
             String firstName, String lastName, String middleName,
             String city, String street, String houseNumber, String phone,
             String maritalStatus, String employmentDuration, String jobTitle,
             String companyName, String passportData, double requestedAmount) {
 
-        CreditApplicationForm form = new CreditApplicationForm();
+        CreditApplicationFormDto form = new CreditApplicationFormDto();
         form.setFirstName(firstName);
         form.setLastName(lastName);
         form.setMiddleName(middleName);

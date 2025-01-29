@@ -1,13 +1,15 @@
 package com.yourname.creditapp.entitiy;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "credit_applications")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreditApplication {
 
     @Id
@@ -17,7 +19,9 @@ public class CreditApplication {
     @Column(updatable = false)
     private LocalDate createdDate = LocalDate.now();
 
+    @NonNull
     private String fullName;
+
     private String passportData;
     private String maritalStatus;
     private String address;

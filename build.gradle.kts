@@ -26,15 +26,20 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.28")
     annotationProcessor("org.projectlombok:lombok:1.18.28")
 
+    implementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+
     testImplementation("org.mockito:mockito-core:5.2.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.2.0")
-    testImplementation("org.springframework:spring-test:5.3.26")
+
+    testImplementation("org.springframework:spring-test:6.0.11")
+
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+
     testImplementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
 }
-
 tasks.test {
     useJUnitPlatform()
 }
